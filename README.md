@@ -20,7 +20,7 @@ On Intel, it does not seem to allow downgrades from the Ventura Recovery, might 
 
 ## Recovery → Version Compatibility
 
-|Recovery Mode Version|Big Sur|Monterey|Ventura
+|Install → <br>Recovery ↓|Big Sur|Monterey|Ventura
 |:--|:-:|:-:|:-:|
 |Catalina|✅|✅|✅|
 |Big Sur|✅|✅|✅|
