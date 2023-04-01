@@ -1,5 +1,5 @@
 # ORIGINAL FILE FROM https://github.com/macBerlin/macOS_erase/blob/main/macOS_erase_Monterey
-# THIS WAS CHANGED TO WORK WITH ALL VRESIONS: BIG SUR, MONTEREY, VENTURA
+# THIS WAS CHANGED TO WORK WITH ALL VRESIONS: MONTEREY, VENTURA
 # NO WARRANTY OR HELP FROM ME
 
 
@@ -9,25 +9,18 @@
 # ----------------
 
 #
-# BIG SUR
-# get it from https://mrmacintosh.com/macos-big-sur-full-installer-database-download-directly-from-apple/
-#
-bigSurVersion="11.7.3"
-bigSurLink="https://swcdn.apple.com/content/downloads/26/54/032-50519-A_CXUH67MIZN/z1mbjod7nna0yhubto3a7pyq1gilhin6fw/InstallAssistant.pkg"
-
-#
 # MONTEREY
 # get it from https://mrmacintosh.com/macos-12-monterey-full-installer-database-download-directly-from-apple/
 #
-montereyVersion="12.6.3"
-montereyLink="https://swcdn.apple.com/content/downloads/17/14/032-33828-A_KX25OQBX8S/lz9yip4rmenyju8nkv4wpaqtdmvzfogkcb/InstallAssistant.pkg"
+montereyVersion="12.6.4"
+montereyLink="https://swcdn.apple.com/content/downloads/07/41/032-63749-A_38MYH58MVP/0ynlao7ghdixj9sgw8im15vwf4hox0hnzc/InstallAssistant.pkg"
 
 #
 # VENTURA
 # get from https://mrmacintosh.com/macos-ventura-13-full-installer-database-download-directly-from-apple/
 #
-venturaVersion="13.2.1"
-venturaLink="https://swcdn.apple.com/content/downloads/26/15/032-48342-A_OG2YEE7OSX/8sd3qpy79cimb7cjiy47cytps0gm7m0z5l/InstallAssistant.pkg"
+venturaVersion="13.3"
+venturaLink="https://swcdn.apple.com/content/downloads/41/46/002-75541-A_N0W4MFQ0NM/rwkz3k8cd91dvrvddymange3k8004xkt4v/InstallAssistant.pkg"
 
 
 
@@ -134,20 +127,19 @@ function downloadInstaller() {
     echo
     echo -e "${GREEN}[CHOICE]:${NC} Choose your macOS Version"
     echo
-    echo -e "\t1. macOS Big Sur\t${bigSurVersion}"
+    echo -e "\t1. macOS Ventura\t${venturaVersion}"
     echo -e "\t2. macOS Monterey\t${montereyVersion}"
-    echo -e "\t3. macOS Ventura\t${venturaVersion}"
     echo
-    echo -e "${GREEN}[CHOICE]: Enter a number (1/2/3)${NC}"
+    echo -e "${GREEN}[CHOICE]: Enter a number (1 or 2)${NC}"
     read answer < /dev/tty
     echo
 
     case $answer in
-    
+
         "1" )
-            macOSName="Big Sur"
-            macOSVersion=${bigSurVersion}
-            macOSUrl=${bigSurLink}
+            macOSName="Ventura"
+            macOSVersion=${venturaVersion}
+            macOSUrl=${venturaLink}
             ;;
 
         "2" )
@@ -156,11 +148,7 @@ function downloadInstaller() {
             macOSUrl=${montereyLink}
             ;;
         
-        "3" )
-            macOSName="Ventura"
-            macOSVersion=${venturaVersion}
-            macOSUrl=${venturaLink}
-            ;;
+       
         
         * )
             echo -e "${RED}[INFO]:${NC} Nothing selected, exiting now ..."
