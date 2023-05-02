@@ -12,15 +12,15 @@
 # MONTEREY
 # get it from https://mrmacintosh.com/macos-12-monterey-full-installer-database-download-directly-from-apple/
 #
-montereyVersion="12.6.4"
-montereyLink="https://swcdn.apple.com/content/downloads/07/41/032-63749-A_38MYH58MVP/0ynlao7ghdixj9sgw8im15vwf4hox0hnzc/InstallAssistant.pkg"
+montereyVersion="12.6.5"
+montereyLink="https://swcdn.apple.com/content/downloads/24/38/032-71575-A_N8LLYQ3VAW/slqvm2ho1x1h2rtmevw0ev05er5mvoqp16/InstallAssistant.pkg"
 
 #
 # VENTURA
 # get from https://mrmacintosh.com/macos-ventura-13-full-installer-database-download-directly-from-apple/
 #
-venturaVersion="13.3"
-venturaLink="https://swcdn.apple.com/content/downloads/41/46/002-75541-A_N0W4MFQ0NM/rwkz3k8cd91dvrvddymange3k8004xkt4v/InstallAssistant.pkg"
+venturaVersion="13.3.1"
+venturaLink="https://swcdn.apple.com/content/downloads/37/35/032-66588-A_P5QIYDIIZL/kkuzd39hnskjm12vimzblklo3drb3majbf/InstallAssistant.pkg"
 
 
 
