@@ -8,24 +8,17 @@
 # SETUP
 # ----------------
 
-latestMonterey=$(curl -s https://hischem.de/latestMonterey.php)
-IFS="|||" read -r montereyVersion montereyVersion <<< "$latestMonterey"
-
-latestVentura=$(curl -s https://hischem.de/latestVentura.php)
-IFS="|||" read -r venturaVersion venturaVersion <<< "$latestVentura"
-
 #
 # MONTEREY
 #
-montereyVersion=$(echo "$latestMonterey" | jq -r '.montereyVersion')
-montereyLink=$(echo "$latestMonterey" | jq -r '.montereyLink')
+latestMonterey=$(curl -s https://hischem.de/latestMonterey.php)
+IFS="|||" read -r montereyVersion montereyVersion <<< "$latestMonterey"
 
 #
 # VENTURA
 #
-venturaVersion=$(echo "$latestVentura" | jq -r '.venturaVersion')
-venturaLink=$(echo "$latestVentura" | jq -r '.venturaLink')
-
+latestVentura=$(curl -s https://hischem.de/latestVentura.php)
+IFS="|||" read -r venturaVersion venturaVersion <<< "$latestVentura"
 
 #
 # COLORS
