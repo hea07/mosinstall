@@ -12,13 +12,13 @@
 # MONTEREY
 #
 latestMonterey=$(curl -s https://hischem.de/latestMonterey.php)
-IFS="|||" read -r montereyVersion montereyVersion <<< "$latestMonterey"
+IFS="|||" read -r montereyVersion montereyLink <<< "$latestMonterey"
 
 #
 # VENTURA
 #
 latestVentura=$(curl -s https://hischem.de/latestVentura.php)
-IFS="|||" read -r venturaVersion venturaVersion <<< "$latestVentura"
+IFS="|||" read -r venturaVersion venturaLink <<< "$latestVentura"
 
 #
 # COLORS
