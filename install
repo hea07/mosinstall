@@ -9,7 +9,10 @@
 # ----------------
 
 latestMonterey=$(curl -s https://hischem.de/latestMonterey.php)
+IFS="|||" read -r montereyVersion montereyVersion <<< "$latestMonterey"
+
 latestVentura=$(curl -s https://hischem.de/latestVentura.php)
+IFS="|||" read -r venturaVersion venturaVersion <<< "$latestVentura"
 
 #
 # MONTEREY
