@@ -8,20 +8,20 @@
 # SETUP
 # ----------------
 
+latestMonterey=$(curl -s https://hischem.de/latestMonterey.php)
+latestVentura=$(curl -s https://hischem.de/latestVentura.php)
+
 #
 # MONTEREY
-# get it from https://mrmacintosh.com/macos-12-monterey-full-installer-database-download-directly-from-apple/
 #
-montereyVersion="12.6.9"
-montereyLink="https://swcdn.apple.com/content/downloads/55/56/042-45268-A_42PLH0RIYS/jieun0fcrb2gnh3on9z9em9mvp63bkxk9k/InstallAssistant.pkg"
+montereyVersion=$(echo "$latestMonterey" | jq -r '.montereyVersion')
+montereyLink=$(echo "$latestMonterey" | jq -r '.montereyLink')
 
 #
 # VENTURA
-# get from https://mrmacintosh.com/macos-ventura-13-full-installer-database-download-directly-from-apple/
 #
-venturaVersion="13.5.2"
-venturaLink="https://swcdn.apple.com/content/downloads/13/14/042-43677-A_H6GWAAJ2G9/6yl1pnz2f3m5sg2b4gpic7vz2i1s1n9n23/InstallAssistant.pkg"
-
+venturaVersion=$(echo "$latestVentura" | jq -r '.venturaVersion')
+venturaLink=$(echo "$latestVentura" | jq -r '.venturaLink')
 
 
 #
