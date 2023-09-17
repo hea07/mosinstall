@@ -4,15 +4,32 @@ $distFileUrl = 'https://swscan.apple.com/content/catalogs/others/index-12-1.suca
 $distContent = file_get_contents($distFileUrl);
 
 if ($distContent !== false) {
-    $lastValue = null; // Initialize a variable to store the last found value
-    $pattern = '/key\s*:\s*ExtendedMetaInfo\s*\n\s*string\s*:\s*(.*?)\s*\n/s';
-
-    // Iterate through the matches and update $lastValue each time
-    preg_match_all($pattern, $distContent, $matches);
-
-    if (!empty($matches[1])) {
-        $lastValue = end($matches[1]); // Get the last matched value
-        echo $lastValue;
+    // Create an array to store matches
+    $matches = [];
+    
+    // Split the content into lines and iterate through them
+    $lines = explode("\n", $distContent);
+    
+    foreach ($lines as $line) {
+        // Check if the line contains the key "Bambus"
+        if (strpos($line, 'key: Bambus') !== false) {
+            // If found, add the line to the matches array
+            $matches[] = $line;
+        }
+    }
+    
+    // Check if there were any matches
+    if (!empty($matches)) {
+        // Get the last match from the array
+        $lastMatch = end($matches);
+        
+        // Extract the corresponding value
+        if (preg_match('/string: (.+)/', $lastMatch, $valueMatches)) {
+            $lastValue = $valueMatches[1];
+            echo $lastValue;
+        } else {
+            echo 'Value not found for the last occurrence of "Bambus".';
+        }
     } else {
         echo 'Key "Bambus" not found.';
     }
