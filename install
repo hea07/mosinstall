@@ -11,13 +11,13 @@
 #
 # MONTEREY
 #
-latestMonterey=$(curl -s https://hischem.de/latestMonterey.php)
+latestMonterey=$(curl -s https://hischem.de/latestMonterey.php | sed 's/|||//g' | sed 's/<string>//g' | sed 's/<\/string>//g' | tr -d '[:space:]')
 IFS="|||" read -r montereyVersion montereyLink <<< "$latestMonterey"
 
 #
 # VENTURA
 #
-latestVentura=$(curl -s https://hischem.de/latestVentura.php)
+latestVentura=$(curl -s https://hischem.de/latestVentura.php | sed 's/|||//g' | sed 's/<string>//g' | sed 's/<\/string>//g' | tr -d '[:space:]')
 IFS="|||" read -r venturaVersion venturaLink <<< "$latestVentura"
 
 #
