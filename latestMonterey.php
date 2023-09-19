@@ -1,5 +1,4 @@
 <?php
-//write code that opens the last link to ExtendedMetaInfo file of the sucatalog and then searches for the version key.
 $catalogUrl = 'https://swscan.apple.com/content/catalogs/others/index-12-1.sucatalog';
 
 $searchIApkg = 'InstallAssistant.pkg';
@@ -12,18 +11,49 @@ if ($catalogContent !== false) {
 
     $lastMatchedLine = '';
 
-	$lastValue = null; // Initialize a variable to store the last found value
-    $pattern = '/https:\/\/swdist\.apple\.com\/content\/downloads\/\d+\/\d+\/\S+\/\S+\/\d{3}-\d+\.\w+\.dist/gm';
+    // URL of the remote XML file
+    $xmlUrl = 'https://swscan.apple.com/content/catalogs/others/index-12-1.sucatalog';
 
-    // Iterate through the matches and update $lastValue each time
-    preg_match_all($pattern, $catalogContent, $matches);
+    // Fetch the XML content using file_get_contents
+    $xmlData = file_get_contents($xmlUrl);
 
-    if (!empty($matches[1])) {
-        $lastValue = end($matches[1]); // Get the last matched value
-        echo $lastValue;
-    } else {
-        echo 'Key "Bamhbus" not found.';
+    // Check if fetching the content was successful
+    if ($xmlData === false) {
+        echo 'Failed to fetch the XML file.';
+        exit;
     }
+
+    // Load the XML string
+    $doc = new DOMDocument();
+    $doc->loadXML($xmlData);
+
+    // Find the URL
+    $xpath = new DOMXPath($doc);
+    $url = $xpath->query('/plist/dict/dict/dict[18]/dict[2]/string')->item(0)->nodeValue;
+
+    // echo $url;
+
+    // XPath for the Versionnumber
+    // /installer-gui-script[@minSpecVersion="2"]/auxinfo/dict//string[2]/text()
+
+    // Fetch the XML content using file_get_contents
+    $VersxmlData = file_get_contents($url);
+
+    // Check if fetching the content was successful
+    if ($VersxmlData === false) {
+        echo 'Failed to fetch the XML file.';
+        exit;
+    }
+
+    // Load the XML string
+    $versdoc = new DOMDocument();
+    $versdoc->loadXML($VersxmlData);
+
+    // Find the URL
+    $xpathv = new DOMXPath($versdoc);
+    $ProductVersion = $xpathv->query('/installer-gui-script[@minSpecVersion="2"]/auxinfo/dict//string[2]/text()')->item(0)->nodeValue;
+
+    //echo $versn;
 
     // Iterate through the lines in reverse order
     for ($i = count($lines) - 1; $i >= 0; $i--) {
@@ -41,11 +71,10 @@ if ($catalogContent !== false) {
         echo "No match found for '$searchIApkg' in the external file content.";
     }
 
-    $montereyLink = $lastMatchedLine;
-    $montereyVersion = $ProductVersion;
+    $venturaLink = $lastMatchedLine;
+    $venturaVersion = $ProductVersion;
 
-    echo "$montereyVersion|||$montereyLink";
+    echo "$venturaVersion|||$venturaLink";
 } else {
     echo "Unable to retrieve content from the external URL.";
 }
-?>
