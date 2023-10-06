@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # encoding: utf-8
-#
+'''#
 # Copyright 2020 Armin Briegel.
 #
 # based on Greg Neagle's 'installinstallmacos.py'
@@ -24,49 +24,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+#'''
 
 '''fetch-full-installer.py
 A tool to download the a pkg installer for the Install macOS app from Apple's
 softwareupdate servers'''
 
-# Python 3 compatibility shims
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
-import gzip
 import os
 import plistlib
 import subprocess
 import sys
-try:
-    # python 2
-    from urllib.parse import urlsplit
-except ImportError:
-    # python 3
-    from urlparse import urlsplit
+from urllib.parse import urlsplit
 from xml.dom import minidom
 from xml.parsers.expat import ExpatError
 
 MYCATALOG = 'https://swscan.apple.com/content/catalogs/others/index-13-12-10.16-10.15-10.14-10.13-10.12-10.11-10.10-10.9-mountainlion-lion-snowleopard-leopard.merged-1.sucatalog'
 
 def read_plist(filepath):
-    '''Wrapper for the differences between Python 2 and Python 3's plistlib'''
-    try:
-        with open(filepath, "rb") as fileobj:
-            return plistlib.load(fileobj)
-    except AttributeError:
-        # plistlib module doesn't have a load function (as in Python 2)
-        return plistlib.readPlist(filepath)
+    with open(filepath, "rb") as fileobj:
+        return plistlib.load(fileobj)
 
 
 def read_plist_from_string(bytestring):
-    '''Wrapper for the differences between Python 2 and Python 3's plistlib'''
-    try:
-        return plistlib.loads(bytestring)
-    except AttributeError:
-        # plistlib module doesn't have a load function (as in Python 2)
-        return plistlib.readPlistFromString(bytestring)
+    return plistlib.loads(bytestring)
 
 
 class ReplicationError(Exception):
@@ -74,11 +54,7 @@ class ReplicationError(Exception):
     pass
 
 
-def replicate_url(full_url,
-                  root_dir='/tmp',
-                  show_progress=False,
-                  ignore_cache=False,
-                  attempt_resume=False):
+def replicate_url(full_url, root_dir='/tmp'):
     '''Downloads a URL and stores it in the same relative path on our
     filesystem. Returns a path to the replicated file.'''
 
@@ -86,27 +62,15 @@ def replicate_url(full_url,
     relative_url = path.lstrip('/')
     relative_url = os.path.normpath(relative_url)
     local_file_path = os.path.join(root_dir, relative_url)
-    if show_progress:
-        options = '-fL'
-    else:
-        options = '-sfL'
-    curl_cmd = ['/usr/bin/curl', options,
-                '--create-dirs',
-                '-o', local_file_path]
-    if not full_url.endswith(".gz"):
-        # stupid hack for stupid Apple behavior where it sometimes returns
-        # compressed files even when not asked for
-        curl_cmd.append('--compressed')
-    if not ignore_cache and os.path.exists(local_file_path):
-        curl_cmd.extend(['-z', local_file_path])
-        if attempt_resume:
-            curl_cmd.extend(['-C', '-'])
+    curl_cmd = ['/usr/bin/curl', '-sfL', '-o', '/dev/null']
     curl_cmd.append(full_url)
+    #print(curl_cmd)
     #print("Downloading %s..." % full_url)
     try:
         subprocess.check_call(curl_cmd)
     except subprocess.CalledProcessError as err:
         raise ReplicationError(err)
+    #print(local_file_path)
     return local_file_path
 
 
@@ -201,27 +165,16 @@ def download_and_parse_sucatalog(sucatalog):
     except ReplicationError as err:
         print('Could not replicate %s: %s' % (sucatalog, err), file=sys.stderr)
         exit(-1)
-    if os.path.splitext(localcatalogpath)[1] == '.gz':
-        with gzip.open(localcatalogpath) as the_file:
-            content = the_file.read()
-            try:
-                catalog = read_plist_from_string(content)
-                return catalog
-            except ExpatError as err:
-                print('Error reading %s: %s' % (localcatalogpath, err),
-                      file=sys.stderr)
-                exit(-1)
-    else:
-        try:
-            catalog = read_plist(localcatalogpath)
-            return catalog
-        except (OSError, IOError, ExpatError) as err:
-            print('Error reading %s: %s' % (localcatalogpath, err),
-                  file=sys.stderr)
-            exit(-1)
+    try:
+        catalog = read_plist(localcatalogpath)
+        return catalog
+    except (OSError, IOError, ExpatError) as err:
+        print('Error reading %s: %s' % (localcatalogpath, err),
+              file=sys.stderr)
+        exit(-1)
 
 
-def find_mac_os_installers(catalog, installassistant_pkg_only=False):
+def find_mac_os_installers(catalog):
     '''Return a list of product identifiers for what appear to be macOS
     installers'''
     mac_os_installer_products = []
@@ -257,7 +210,7 @@ def os_installer_product_info(catalog):
         dist_url = distributions.get('English') or distributions.get('en')
         try:
             dist_path = replicate_url(
-                dist_url, show_progress=False)
+                dist_url)
         except ReplicationError as err:
             print('Could not replicate %s: %s' % (dist_url, err),
                   file=sys.stderr)
@@ -277,15 +230,10 @@ def replicate_product(catalog, product_id):
     '''Downloads all the packages for a product'''
     product = catalog['Products'][product_id]
     for package in product.get('Packages', []):
-        # TO-DO: Check 'Size' attribute and make sure
-        # we have enough space on the target
-        # filesystem before attempting to download
         if 'URL' in package:
             try:
                 replicate_url(
-                    package['URL'],
-                    show_progress=True,
-                    attempt_resume=())
+                    package['URL'])
             except ReplicationError as err:
                 print('Could not replicate %s: %s' % (package['URL'], err),
                       file=sys.stderr)
@@ -354,6 +302,7 @@ def main():
     
     #print("URL of InstallAssistant.pkg for the latest version: %s" % package_url)
     print(latest_product_info.get('version', 'UNKNOWN'),package_url)
+    return(latest_product_info.get('version', 'UNKNOWN'),package_url)
 
 
 if __name__ == '__main__':
