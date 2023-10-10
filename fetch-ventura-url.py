@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # encoding: utf-8
-'''#
+#
 # Copyright 2020 Armin Briegel.
 #
 # based on Greg Neagle's 'installinstallmacos.py'
@@ -24,12 +24,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#'''
+#
 
 '''fetch-full-installer.py
 A tool to download the a pkg installer for the Install macOS app from Apple's
 softwareupdate servers'''
 
+import gzip
 import os
 import plistlib
 import subprocess
@@ -44,17 +45,19 @@ def read_plist(filepath):
     with open(filepath, "rb") as fileobj:
         return plistlib.load(fileobj)
 
-
 def read_plist_from_string(bytestring):
     return plistlib.loads(bytestring)
-
 
 class ReplicationError(Exception):
     '''A custom error when replication fails'''
     pass
 
 
-def replicate_url(full_url, root_dir='/tmp'):
+def replicate_url(full_url,
+                  root_dir='/tmp',
+                  show_progress=False,
+                  ignore_cache=False,
+                  attempt_resume=False):
     '''Downloads a URL and stores it in the same relative path on our
     filesystem. Returns a path to the replicated file.'''
 
@@ -62,15 +65,27 @@ def replicate_url(full_url, root_dir='/tmp'):
     relative_url = path.lstrip('/')
     relative_url = os.path.normpath(relative_url)
     local_file_path = os.path.join(root_dir, relative_url)
-    curl_cmd = ['/usr/bin/curl', '-sfL', '-o', '/dev/null']
+    if show_progress:
+        options = '-fL'
+    else:
+        options = '-sfL'
+    curl_cmd = ['/usr/bin/curl', options,
+                '--create-dirs',
+                '-o', local_file_path]
+    if not full_url.endswith(".gz"):
+        # stupid hack for stupid Apple behavior where it sometimes returns
+        # compressed files even when not asked for
+        curl_cmd.append('--compressed')
+    if not ignore_cache and os.path.exists(local_file_path):
+        curl_cmd.extend(['-z', local_file_path])
+        if attempt_resume:
+            curl_cmd.extend(['-C', '-'])
     curl_cmd.append(full_url)
-    #print(curl_cmd)
     #print("Downloading %s..." % full_url)
     try:
         subprocess.check_call(curl_cmd)
     except subprocess.CalledProcessError as err:
         raise ReplicationError(err)
-    #print(local_file_path)
     return local_file_path
 
 
@@ -165,16 +180,27 @@ def download_and_parse_sucatalog(sucatalog):
     except ReplicationError as err:
         print('Could not replicate %s: %s' % (sucatalog, err), file=sys.stderr)
         exit(-1)
-    try:
-        catalog = read_plist(localcatalogpath)
-        return catalog
-    except (OSError, IOError, ExpatError) as err:
-        print('Error reading %s: %s' % (localcatalogpath, err),
-              file=sys.stderr)
-        exit(-1)
+    if os.path.splitext(localcatalogpath)[1] == '.gz':
+        with gzip.open(localcatalogpath) as the_file:
+            content = the_file.read()
+            try:
+                catalog = read_plist_from_string(content)
+                return catalog
+            except ExpatError as err:
+                print('Error reading %s: %s' % (localcatalogpath, err),
+                      file=sys.stderr)
+                exit(-1)
+    else:
+        try:
+            catalog = read_plist(localcatalogpath)
+            return catalog
+        except (OSError, IOError, ExpatError) as err:
+            print('Error reading %s: %s' % (localcatalogpath, err),
+                  file=sys.stderr)
+            exit(-1)
 
 
-def find_mac_os_installers(catalog):
+def find_mac_os_installers(catalog, installassistant_pkg_only=False):
     '''Return a list of product identifiers for what appear to be macOS
     installers'''
     mac_os_installer_products = []
@@ -210,7 +236,7 @@ def os_installer_product_info(catalog):
         dist_url = distributions.get('English') or distributions.get('en')
         try:
             dist_path = replicate_url(
-                dist_url)
+                dist_url, show_progress=False)
         except ReplicationError as err:
             print('Could not replicate %s: %s' % (dist_url, err),
                   file=sys.stderr)
@@ -230,10 +256,15 @@ def replicate_product(catalog, product_id):
     '''Downloads all the packages for a product'''
     product = catalog['Products'][product_id]
     for package in product.get('Packages', []):
+        # TO-DO: Check 'Size' attribute and make sure
+        # we have enough space on the target
+        # filesystem before attempting to download
         if 'URL' in package:
             try:
                 replicate_url(
-                    package['URL'])
+                    package['URL'],
+                    show_progress=True,
+                    attempt_resume=())
             except ReplicationError as err:
                 print('Could not replicate %s: %s' % (package['URL'], err),
                       file=sys.stderr)
@@ -266,43 +297,48 @@ def main():
               file=sys.stderr)
         exit(-1)
 
-    # Filter products with the title "Ventura"
-    filtered_product_info = {
-        product_id: info
-        for product_id, info in product_info.items()
-        if info['title'] == 'macOS Ventura'
+    # for schleife die alle Versionen abdeckt
+    versiontitles = ["macOS Monterey", "macOS Ventura", "macOS Sonoma"]
+
+    # Create a dictionary to map version titles to strings
+    versiontitle_to_website = {
+        "macOS Monterey": "/var/www/latest-monterey/index.html",
+        "macOS Ventura": "/var/www/latest-ventura/index.html",
+        "macOS Sonoma": "/var/www/latest-sonoma/index.html"
     }
+    for x in versiontitles:
+        # Filter products with the title "Ventura"
+        filtered_product_info = {
+            product_id: info
+            for product_id, info in product_info.items()
+            if info['title'] == x
+        }
 
-    if not filtered_product_info:
-        print('No macOS installer products with the title "macOS Ventura" found in the sucatalog.',
-              file=sys.stderr)
-        exit(-1)
+        if not filtered_product_info:
+            print('No macOS installer products with the title "macOS Ventura" found in the sucatalog.',
+                  file=sys.stderr)
+            exit(-1)
 
-    # Sort filtered products by release date in descending order
-    sorted_product_info = sorted(filtered_product_info, key=lambda k: filtered_product_info[k]['PostDate'], reverse=True)
+        # Sort filtered products by release date in descending order
+        sorted_product_info = sorted(filtered_product_info, key=lambda k: filtered_product_info[k]['PostDate'], reverse=True)
 
-    # Take the latest version
-    product_id = sorted_product_info[0]
-    latest_product_info = filtered_product_info[product_id]
+        # Take the latest version
+        product_id = sorted_product_info[0]
+        latest_product_info = filtered_product_info[product_id]
 
-    #print('Latest version of macOS installer with the title "Ventura":')
-    """ print('%14s %10s %8s %11s  %s' % (
-        product_id,
-        latest_product_info.get('version', 'UNKNOWN'),
-        latest_product_info.get('BUILD', 'UNKNOWN'),
-        latest_product_info['PostDate'].strftime('%Y-%m-%d'),
-        latest_product_info['title']
-    )) """
+        # Determine the InstallAssistant pkg url
+        for package in catalog['Products'][product_id]['Packages']:
+            package_url = package['URL']
+            if package_url.endswith('InstallAssistant.pkg'):
+                break
 
-    # Determine the InstallAssistant pkg url
-    for package in catalog['Products'][product_id]['Packages']:
-        package_url = package['URL']
-        if package_url.endswith('InstallAssistant.pkg'):
-            break
-    
-    #print("URL of InstallAssistant.pkg for the latest version: %s" % package_url)
-    print(latest_product_info.get('version', 'UNKNOWN'),package_url)
-    return(latest_product_info.get('version', 'UNKNOWN'),package_url)
+        file_path = versiontitle_to_website.get(x)
+        #print(file_path)
+        with open(file_path, 'w') as file:
+            file.write(latest_product_info.get('version', 'UNKNOWN') + '|' + package_url)
+
+        #print("URL of InstallAssistant.pkg for the latest version: %s" % package_url)
+        print(latest_product_info.get('version', 'UNKNOWN'),package_url)
 
 
 if __name__ == '__main__':
