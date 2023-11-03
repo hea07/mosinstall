@@ -1,6 +1,12 @@
 #!/usr/bin/python
 # encoding: utf-8
 #
+
+# This is based on https://github.com/scriptingosx/fetch-installer-pkg 
+# This version only gets the URLs and the versionnumbers of the Installers 
+# and puts them on a website, so another script can get them. 
+# Compatibility with Python 2 was removed.
+
 # Copyright 2020 Armin Briegel.
 #
 # based on Greg Neagle's 'installinstallmacos.py'
@@ -302,9 +308,9 @@ def main():
 
     # Create a dictionary to map version titles to strings
     versiontitle_to_website = {
-        "macOS Monterey": "/var/www/latest-monterey/index.html",
-        "macOS Ventura": "/var/www/latest-ventura/index.html",
-        "macOS Sonoma": "/var/www/latest-sonoma/index.html"
+        "macOS Monterey": "/var/www/latest-monterey.example.com/index.html",
+        "macOS Ventura": "/var/www/latest-ventura.example.com/index.html",
+        "macOS Sonoma": "/var/www/latest-sonoma.example.com/index.html"
     }
     for x in versiontitles:
         # Filter products with the title "Ventura"
