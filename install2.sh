@@ -299,12 +299,13 @@ function expandAndSet() {
     # Moving files to set up the InstallAssistant
     #
 
-    Source = "${dstDiskPath}/Source"
-
+    SOURCE='/private/tmp/Source'
+    #SOURCE='/Volumes/Macintosh HD/Source'
+    #mkdir ${SOURCE}
     echo -e "${GREEN}[INFO]:${NC} Expanding Installer ..."
-    pkgutil --expand-full InstallAssistant.pkg "${Source}"
+    pkgutil --expand-full InstallAssistant.pkg "${SOURCE}"
     echo -e "${GREEN}[INFO]:${NC} Copying in place ..."
-    cp -R "${Source}"/Payload/Applications/"Install macOS ${macOSName}.app" "${dstDiskPath}${TMPDIR}" &>/dev/null
+    cp -R "${SOURCE}"/Payload/Applications/"Install macOS ${macOSName}.app" "${dstDiskPath}${TMPDIR}" &>/dev/null
 
     echo -e "${GREEN}[INFO]:${NC} Changing permissions ..."
     SSPATH="Install macOS ${macOSName}.app/Contents/SharedSupport"
@@ -316,8 +317,8 @@ function expandAndSet() {
     /usr/bin/chflags -h norestricted "$SSPATH"/SharedSupport.dmg
 
     echo -e "${GREEN}[INFO]:${NC} Cleanup ..."
-    rm -rf "${Source}"
-    rm -rf InstallAssistant.pkg
+    rm -rf "${SOURCE}"
+    #rm -rf InstallAssistant.pkg
     echo -e "${GREEN}[INFO]:${NC} Prerequisites done."
 
     echo -e "${GREEN}[INFO]:${NC} Starting installer ..."
@@ -343,7 +344,6 @@ function main() {
     versionChooser
     checkForPKGversion
     #unmountExternalDisks
-    echo test
 }
 
 main
