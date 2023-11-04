@@ -25,6 +25,7 @@ PKG="/InstallAssistant.pkg"
 TMPDIR="/private/tmp"
 cd ${TMPDIR}
 os_ver=$(sw_vers -productVersion)
+dstDiskPath='/Volumes/Macintosh HD'
 
 function printInfo() {
 
@@ -61,19 +62,19 @@ function eraseDisk() {
     # format the internal drive
     #
 
-
+    # dstDisk* wird nur in eraseDisk() verwendet.
     #### evtl zu diskPath umbenennen
     if [[ -d '/Volumes/Untitled' ]]; then
-        dstDisk='/Volumes/Untitled'
+        dstDiskPath='/Volumes/Untitled'
         dstDiskName="Untitled"
     fi
 
     if [[ -d '/Volumes/Macintosh HD' ]]; then
-        dstDisk='/Volumes/Macintosh HD'
+        dstDiskPath='/Volumes/Macintosh HD'
         dstDiskName="Macintosh HD"
     fi
 
-    echo -e "${GREEN}[INFO]:${NC} Destination disk is: ${dstDisk}"
+    echo -e "${GREEN}[INFO]:${NC} Destination disk is: ${dstDiskPath}"
     echo -e "${RED}"
     echo -n "Do you want to delete all data on this computer? (y/n) :"
     echo -e "${NC}"
@@ -102,7 +103,7 @@ function eraseDisk() {
         fi
 
         diskutil apfs eraseVolume ${DSK_MACINTOSH_HD} -name "Macintosh HD" &>/dev/null
-        dstDisk='/Volumes/Macintosh HD'
+        dstDiskPath='/Volumes/Macintosh HD'
         dstDiskName='Macintosh HD'
         diskutil mount /dev/${DSK_MACINTOSH_HD}
     fi
@@ -112,8 +113,8 @@ function eraseDisk() {
 
 function versionChooser() {
     echo -e "${GREEN}[INFO]:${NC} Set up folder ..."
-    mkdir -p "${diskPath}${TMPDIR}"
-    cd "${diskPath}${TMPDIR}"
+    mkdir -p "${dstDiskPath}${TMPDIR}"
+    cd "${dstDiskPath}${TMPDIR}"
 
     echo
     echo -e "${GREEN}[CHOICE]:${NC} Choose your macOS Version"
@@ -225,9 +226,21 @@ function checkForPKGversion() {
     #
 
     if [[ -f ${CACHEDISK}${PKG} ]]; then
-        echo -e "${GREEN}[INFO]:${NC} Checking if the USB Cache is up to date..."
-        installer -pkg ${CACHEDISK}${PKG} -target / >/dev/null
+        echo -e "${GREEN}[INFO]:${NC} Found a cache USB"
+        echo -e "${GREEN}[INFO]:${NC} Do you want me to CHECK, if it is the newest Version \n or \njust USE this one? \nThis may take a while depending on the speed of the thumbdrive (y/n)"
+        echo -e "${GREEN}CHECK if it's the newest version? \nThis may take a while (y)"
+        echo -e "${GREEN}OR"
+        echo -e "${GREEN}USE this one, without knowing it's version (n)"
+        read answer </dev/tty
+        if [ "$answer" != "${answer#[Yy]}" ]; then
+            installer -pkg ${CACHEDISK}${PKG} -target / >/dev/null
+        else
+            cd ${CACHEDISK}
+            expandAndSet
+            return
+        fi
     elif [[ -f ${TMPDIR}${PKG} ]]; then
+        echo -e "${GREEN}[INFO]:${NC} Found a local PKG"
         echo -e "${GREEN}[INFO]:${NC} Checking if the local PKG is up to date..."
         installer -pkg ${TMPDIR}${PKG} -target / >/dev/null
     else
@@ -286,10 +299,12 @@ function expandAndSet() {
     # Moving files to set up the InstallAssistant
     #
 
+    Source = "${dstDiskPath}/Source"
+
     echo -e "${GREEN}[INFO]:${NC} Expanding Installer ..."
-    pkgutil --expand-full InstallAssistant.pkg Source
+    pkgutil --expand-full InstallAssistant.pkg "${Source}"
     echo -e "${GREEN}[INFO]:${NC} Copying in place ..."
-    cp -R Source/Payload/Applications/"Install macOS ${macOSName}.app" "${diskPath}${TMPDIR}" &>/dev/null
+    cp -R "${Source}"/Payload/Applications/"Install macOS ${macOSName}.app" "${dstDiskPath}${TMPDIR}" &>/dev/null
 
     echo -e "${GREEN}[INFO]:${NC} Changing permissions ..."
     SSPATH="Install macOS ${macOSName}.app/Contents/SharedSupport"
@@ -301,12 +316,12 @@ function expandAndSet() {
     /usr/bin/chflags -h norestricted "$SSPATH"/SharedSupport.dmg
 
     echo -e "${GREEN}[INFO]:${NC} Cleanup ..."
-    rm -rf Source
+    rm -rf "${Source}"
     rm -rf InstallAssistant.pkg
     echo -e "${GREEN}[INFO]:${NC} Prerequisites done."
 
     echo -e "${GREEN}[INFO]:${NC} Starting installer ..."
-    "${diskPath}${TMPDIR}/Install macOS ${macOSName}.app"/Contents/MacOS/InstallAssistant_springboard >/dev/null
+    "${dstDiskPath}${TMPDIR}/Install macOS ${macOSName}.app"/Contents/MacOS/InstallAssistant_springboard #>/dev/null
 
 }
 
