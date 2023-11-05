@@ -23,9 +23,12 @@ NC='\033[0m' # No Color
 CACHEDISK="/Volumes/macOSCache"
 PKG="/InstallAssistant.pkg"
 TMPDIR="/private/tmp"
-cd ${TMPDIR}
 os_ver=$(sw_vers -productVersion)
 dstDiskPath='/Volumes/Macintosh HD'
+
+UnpackPKGfromTMP=("installer" "-pkg" "${TMPDIR}${PKG}" "-target" "/")
+
+cd "${dstDiskPath}${TMPDIR}"
 
 function printInfo() {
 
@@ -62,8 +65,6 @@ function eraseDisk() {
     # format the internal drive
     #
 
-    # dstDisk* wird nur in eraseDisk() verwendet.
-    #### evtl zu diskPath umbenennen
     if [[ -d '/Volumes/Untitled' ]]; then
         dstDiskPath='/Volumes/Untitled'
         dstDiskName="Untitled"
@@ -106,6 +107,8 @@ function eraseDisk() {
         dstDiskPath='/Volumes/Macintosh HD'
         dstDiskName='Macintosh HD'
         diskutil mount /dev/${DSK_MACINTOSH_HD}
+    else
+        echo -e "${GREEN}[INFO]:${NC} Skipping disk deletion."
     fi
 
     sleep 1
@@ -152,6 +155,66 @@ function versionChooser() {
     esac
 
     echo -e "${GREEN}[INFO]:${NC} You chose macOS ${macOSName} ${macOSVersion}"
+}
+
+function checkForPKGversion() {
+
+    #
+    # Checks if theres a cacheUSB or a local PKG and then checks if they are uptodate.
+    #
+
+    CopyCache2Tmp=("cp" "${CACHEDISK}${PKG}" "${dstDiskPath}"/private/tmp/)
+
+    if [[ -f ${CACHEDISK}${PKG} ]]; then
+        echo -e "${GREEN}[INFO]:${NC} Found a cache USB"
+        echo -e "${GREEN}(y) CHECK if it's the newest version? (This may take a while)"
+        echo -e "${GREEN}      OR"
+        echo -e "${GREEN}(n) INSTALL this one, without knowing it's version"
+        read answer </dev/tty
+        if [ "$answer" != "${answer#[Yy]}" ]; then
+            echo -e "${GREEN}[INFO]:${NC} Cecking the version on the cache USB..."
+            "${CopyCache2Tmp[@]}" &>/dev/null
+            "${UnpackPKGfromTMP[@]}" &>/dev/null
+        else
+            echo -e "${GREEN}[INFO]:${NC} Copying the PKG from USB to this machine..."
+            "${CopyCache2Tmp[@]}" &>/dev/null
+            expandAndSet
+            return
+        fi
+    elif [[ -f ${TMPDIR}${PKG} ]]; then
+        echo -e "${GREEN}[INFO]:${NC} Found a local PKG"
+        echo -e "${GREEN}[INFO]:${NC} Checking if the local PKG is up to date..."
+        "${UnpackPKGfromTMP[@]}" &>/dev/null
+    else
+        downloadInstaller
+        expandAndSet
+    fi
+
+    ### we have to install the cached Package at first because otherwise we cannot get the version
+    echo -e "${GREEN}[INFO]:${NC} comparing macOS versions.."
+    export checkInstallerVersion=$(defaults read /Applications/Install\ macOS\ ${macOSName}.app/Contents/Info.plist DTPlatformVersion)
+
+    if [ "$macOSVersion" = "$checkInstallerVersion" ]; then
+        echo -e "${GREEN}[INFO]:${NC} The cached installer is on latest version ${checkInstallerVersion}."
+        expandAndSet
+    else
+
+        #### Additonal check becasue i saw in the past that the Info.Plist e.q. macOS 11.2.1 return just 11.2 instead of 11.2.1
+        # Attach Installation Source
+        SilentAttach=$(hdiutil attach -quiet -noverify /Applications/Install\ macOS\ ${macOSName}.app/Contents/SharedSupport/SharedSupport.dmg)
+        export checkDMGVersion=$(cat /Volumes/Shared\ Support/com_apple_MobileAsset_MobileSoftwareUpdate_MacUpdateBrain/com_apple_MobileAsset_MobileSoftwareUpdate_MacUpdateBrain.xml | grep -A1 "OSVersion" | grep string | cut -f2 -d ">" | cut -f1 -d "<")
+        SilentUnmount=$(diskutil umount force /Volumes/Shared\ Support >/dev/null)
+
+        if [ "$macOSVersion" = "$checkDMGVersion" ]; then
+            ## second check -> now it seems the cached and server version match
+            echo -e "${GREEN}[INFO]:${NC} The cached installer is on latest version ${checkDMGVersion}."
+            expandAndSet
+        else
+            # warum hier downloadForCacheUSB und nicht downloadInstaller?
+            # hier landet man nur, wenn weder der USB-Stick noch ein lokales PKG vorhanden wäre (das aber nicht uptodate ist)
+            downloadForCacheUSB
+        fi
+    fi
 }
 
 function checkforLocalInstaller() {
@@ -201,7 +264,6 @@ function downloadInstaller() {
 
 function startLocalInstaller() {
     #starting the cached installer
-    # TODO test this on recovery
     case "$os_ver" in
     10.*)
         options="--agreetolicense --eraseinstall --forcequitapps --newvolumename 'Macintosh HD'"
@@ -219,61 +281,6 @@ function startLocalInstaller() {
     "/Applications/Install macOS ${macOSName}.app/Contents/Resources/startosinstall" $options >/dev/null 2>&1
 }
 
-function checkForPKGversion() {
-
-    #
-    # Checks if theres a cacheUSB or a local PKG and then checks if they are uptodate.
-    #
-
-    if [[ -f ${CACHEDISK}${PKG} ]]; then
-        echo -e "${GREEN}[INFO]:${NC} Found a cache USB"
-        echo -e "${GREEN}[INFO]:${NC} Do you want me to CHECK, if it is the newest Version \n or \njust USE this one? \nThis may take a while depending on the speed of the thumbdrive (y/n)"
-        echo -e "${GREEN}CHECK if it's the newest version? \nThis may take a while (y)"
-        echo -e "${GREEN}OR"
-        echo -e "${GREEN}USE this one, without knowing it's version (n)"
-        read answer </dev/tty
-        if [ "$answer" != "${answer#[Yy]}" ]; then
-            installer -pkg ${CACHEDISK}${PKG} -target / >/dev/null
-        else
-            cd ${CACHEDISK}
-            expandAndSet
-            return
-        fi
-    elif [[ -f ${TMPDIR}${PKG} ]]; then
-        echo -e "${GREEN}[INFO]:${NC} Found a local PKG"
-        echo -e "${GREEN}[INFO]:${NC} Checking if the local PKG is up to date..."
-        installer -pkg ${TMPDIR}${PKG} -target / >/dev/null
-    else
-        downloadInstaller
-    fi
-
-    ### we have to install the cached Package at first because otherwise we cannot get the version
-    echo -e "${GREEN}[INFO]:${NC} comparing macOS versions.."
-    export checkInstallerVersion=$(defaults read /Applications/Install\ macOS\ ${macOSName}.app/Contents/Info.plist DTPlatformVersion)
-
-    if [ "$macOSVersion" = "$checkInstallerVersion" ]; then
-        echo -e "${GREEN}[INFO]:${NC} The cached installer is on latest version ${checkInstallerVersion}."
-        expandAndSet
-    else
-
-        #### Additonal check becasue i saw in the past that the Info.Plist e.q. macOS 11.2.1 return just 11.2 instead of 11.2.1
-        # Attach Installation Source
-        SilentAttach=$(hdiutil attach -quiet -noverify /Applications/Install\ macOS\ ${macOSName}.app/Contents/SharedSupport/SharedSupport.dmg)
-        export checkDMGVersion=$(cat /Volumes/Shared\ Support/com_apple_MobileAsset_MobileSoftwareUpdate_MacUpdateBrain/com_apple_MobileAsset_MobileSoftwareUpdate_MacUpdateBrain.xml | grep -A1 "OSVersion" | grep string | cut -f2 -d ">" | cut -f1 -d "<")
-        SilentUnmount=$(diskutil umount force /Volumes/Shared\ Support >/dev/null)
-
-        if [ "$macOSVersion" = "$checkDMGVersion" ]; then
-            ## second check -> now it seems the cached and server version match
-            echo -e "${GREEN}[INFO]:${NC} The cached installer is on latest version ${checkDMGVersion}."
-            expandAndSet
-        else
-            # warum hier downloadForCacheUSB und nicht downloadInstaller?
-            # hier landet man nur, wenn weder der USB-Stick noch ein lokales PKG vorhanden wäre (das aber nicht uptodate ist)
-            downloadForCacheUSB
-        fi
-    fi
-}
-
 function downloadForCacheUSB() {
     ## still not match - ask user for download new version
     echo -e "${BLUE}[INFO]:${NC} The cached installer does not match with server version."
@@ -283,14 +290,21 @@ function downloadForCacheUSB() {
     read answer </dev/tty
     if [ "$answer" != "${answer#[Yy]}" ]; then
         downloadInstaller
-        rm -f ${CACHEDISK}${PKG} / >/dev/null
+        rm -f ${CACHEDISK}${PKG} >/dev/null
         rsync --progress "${TMPDIR}${PKG}" ${CACHEDISK}${PKG}
         echo -e "${GREEN}[INFO]:${NC} Downloaded InstallAssistant.pkg has been copied to ${CACHEDISK}"
-        echo -e "${GREEN}[INFO]:${NC} Unpacking Install macOS ${macOSName}.app..."
-        #installer -pkg "${TMPDIR}${PKG}" -target / >/dev/null
+        echo -e "${GREEN}[INFO]:${RED} Unpacking Install macOS ${macOSName}.app..."
+        #"${UnpackPKGfromTMP[@]}" &>/dev/null
 
         expandAndSet
+    else
+        #something to continue after a no, else theres just gonna be weird error messages
+        echo -e "${RED}[INFO]:${NC} You chose to not download the latest version to your cache disk."
+        echo -e "${RED}[INFO]:${NC} STARTING OVER"
+        main
+        return # i hope this isnt buggy
     fi
+    
 }
 
 function expandAndSet() {
@@ -299,14 +313,11 @@ function expandAndSet() {
     # Moving files to set up the InstallAssistant
     #
 
-    SOURCE='/private/tmp/Source'
-    #SOURCE='/Volumes/Macintosh HD/Source'
-    #mkdir ${SOURCE}
     echo -e "${GREEN}[INFO]:${NC} Expanding Installer ..."
-    pkgutil --expand-full InstallAssistant.pkg "${SOURCE}"
+    pkgutil --expand-full InstallAssistant.pkg Source
     echo -e "${GREEN}[INFO]:${NC} Copying in place ..."
-    cp -R "${SOURCE}"/Payload/Applications/"Install macOS ${macOSName}.app" "${dstDiskPath}${TMPDIR}" &>/dev/null
-
+    cp -R Source/Payload/Applications/"Install macOS ${macOSName}.app" "${dstDiskPath}"/private/tmp/ &>/dev/null
+    
     echo -e "${GREEN}[INFO]:${NC} Changing permissions ..."
     SSPATH="Install macOS ${macOSName}.app/Contents/SharedSupport"
     mkdir -p "$SSPATH"
@@ -317,12 +328,9 @@ function expandAndSet() {
     /usr/bin/chflags -h norestricted "$SSPATH"/SharedSupport.dmg
 
     echo -e "${GREEN}[INFO]:${NC} Cleanup ..."
-    rm -rf "${SOURCE}"
-    #rm -rf InstallAssistant.pkg
+    rm -rf Source
+    rm -rf InstallAssistant.pkg
     echo -e "${GREEN}[INFO]:${NC} Prerequisites done."
-
-    echo -e "${GREEN}[INFO]:${NC} Starting installer ..."
-    "${dstDiskPath}${TMPDIR}/Install macOS ${macOSName}.app"/Contents/MacOS/InstallAssistant_springboard #>/dev/null
 
 }
 
@@ -343,7 +351,20 @@ function main() {
     checkIntelOrAppleSilicon # calls eraseDisk function
     versionChooser
     checkForPKGversion
-    #unmountExternalDisks
+    unmountExternalDisks
+
+    echo -e "${GREEN}[INFO]:${NC} Starting installer ..."
+    "${dstDiskPath}/private/tmp/Install macOS ${macOSName}.app"/Contents/MacOS/InstallAssistant_springboard >/dev/null
 }
 
 main
+
+####### Tests ######
+# USBcache no versioncheck                                                          successful
+# USBcache with versioncheck (already latest Version)                               successful
+# USBcache with versioncheck (use old vers anyway / dont downloadForCacheUSB)       successful
+# USBcache with versioncheck (downloadForCacheUSB)                                  successful 
+# Local PKG (already latest Version)                                                successful
+# Local PKG (not the latest Version)                                                not tested (maybe useless irl)
+# online only version                                                               not tested funzt bestimmt eh
+# 
