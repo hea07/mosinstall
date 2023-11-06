@@ -190,6 +190,10 @@ function checkForCache() {
 
                 versionChecker
 
+                if [ "$versIsOld" == "true" ]; then
+                    downloadForCacheUSB
+                fi
+
             else
 
                 # Version nicht prüfen
@@ -331,10 +335,10 @@ function downloadForCacheUSB() {
     read answer </dev/tty
     if [ "$answer" != "${answer#[Yy]}" ]; then
         downloadInstaller
-        rm -rf ${CACHEDISK}${PKG} >/dev/null
+        rm -rf ${CACHEDISK}${PKG} >/dev/null # echo -e "${GREEN}[INFO]:${NC} Copying to ${CACHEDISK}..."
         rsync --progress "${TMPDIR}${PKG}" ${CACHEDISK}${PKG}
         echo -e "${GREEN}[INFO]:${NC} Downloaded InstallAssistant.pkg has been copied to ${CACHEDISK}"
-        echo -e "${GREEN}[INFO]:${RED} Unpacking Install macOS ${macOSName}.app..."
+        echo -e "${GREEN}[INFO]:${NC} Unpacking Install macOS ${macOSName}.app..."
         #"${UnpackPKGfromTMP[@]}" &>/dev/null
 
         expandAndSet
@@ -343,7 +347,7 @@ function downloadForCacheUSB() {
         echo -e "${RED}[INFO]:${NC} You chose to not download the latest version to your cache disk."
         echo -e "${RED}[INFO]:${NC} STARTING OVER"
         main
-        return # i hope this isnt buggy. Or
+        exit 1
     fi
 
 }
