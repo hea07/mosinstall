@@ -166,13 +166,13 @@ function checkForCache() {
 
     # check if USB is present
 
-    if [[ -f ${CACHEDISK} ]]; then
+    if [[ -d ${CACHEDISK} ]]; then
         echo -e "${GREEN}[INFO]:${NC} Found a cache USB!"
         echo -e "${GREEN}[INFO]:${NC} Looking for InstallAssistant.pkg..."
 
         # check if IA.pkg on USB is present
 
-        if [[ -f ${CACHEDISK}${PKG} ]]; then
+        if [ -f ${CACHEDISK}${PKG} ]; then
 
             echo -e "${GREEN}[INFO]:${NC} Found InstallAssistant.pkg on the USB!"
             echo -e "${GREEN}(y) CHECK if it's the newest version? (This may take a while)"
@@ -331,7 +331,7 @@ function downloadForCacheUSB() {
     read answer </dev/tty
     if [ "$answer" != "${answer#[Yy]}" ]; then
         downloadInstaller
-        rm -f ${CACHEDISK}${PKG} >/dev/null
+        rm -rf ${CACHEDISK}${PKG} >/dev/null
         rsync --progress "${TMPDIR}${PKG}" ${CACHEDISK}${PKG}
         echo -e "${GREEN}[INFO]:${NC} Downloaded InstallAssistant.pkg has been copied to ${CACHEDISK}"
         echo -e "${GREEN}[INFO]:${RED} Unpacking Install macOS ${macOSName}.app..."
@@ -390,7 +390,7 @@ function unmountExternalDisks() {
 function main() {
     printInfo
     checkIntelOrAppleSilicon # calls eraseDisk function
-    versionChooser           # sets macOSName, macOSVersion, macOSUrl variables
+    versionChooser           # just sets macOSName, macOSVersion, macOSUrl variables
     checkForCache
 
     unmountExternalDisks
