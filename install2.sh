@@ -191,6 +191,9 @@ function checkForCache() {
                 versionChecker
 
                 if [ "$versIsOld" == "true" ]; then
+                    #Cleanup
+                    rm -rf "${dstDiskPath}${TMPDIR}${PKG}" >/dev/null
+                    rm -rf "${dstDiskPath}${TMPDIR}/Install macOS Ventura.app" >/dev/null
                     downloadForCacheUSB
                 fi
 
@@ -414,3 +417,5 @@ main
 # Local PKG (not the latest Version)                                                not tested (maybe useless irl)
 # online only version                                                               not tested funzt bestimmt eh
 #
+# USBcache with an empty drive works. It downloads and starts the installer
+# USBcache with an older version doesnt work. it starts an incomplete installer. Now works
