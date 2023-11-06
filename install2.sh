@@ -165,29 +165,40 @@ function checkForPKGversion() {
 
     CopyCache2Tmp=("cp" "${CACHEDISK}${PKG}" "${dstDiskPath}"/private/tmp/)
 
-    if [[ -f ${CACHEDISK}${PKG} ]]; then
-        echo -e "${GREEN}[INFO]:${NC} Found a cache USB"
-        echo -e "${GREEN}(y) CHECK if it's the newest version? (This may take a while)"
-        echo -e "${GREEN}      OR"
-        echo -e "${GREEN}(n) INSTALL this one, without knowing it's version"
-        read answer </dev/tty
-        if [ "$answer" != "${answer#[Yy]}" ]; then
-            echo -e "${GREEN}[INFO]:${NC} Cecking the version on the cache USB..."
-            "${CopyCache2Tmp[@]}" &>/dev/null
-            "${UnpackPKGfromTMP[@]}" &>/dev/null
+    if [[ -f ${CACHEDISK} ]]; then
+        echo -e "${GREEN}[INFO]:${NC} Found a cache USB!"
+        echo -e "${GREEN}[INFO]:${NC} Looking for InstallAssistant.pkg..."
+        if [[ -f ${CACHEDISK}${PKG} ]]; then
+            echo -e "${GREEN}[INFO]:${NC} Found InstallAssistant.pkg on the USB!"
+            echo -e "${GREEN}(y) CHECK if it's the newest version? (This may take a while)"
+            echo -e "${GREEN}      OR"
+            echo -e "${GREEN}(n) INSTALL this one, without knowing it's version"
+            read answer </dev/tty
+            if [ "$answer" != "${answer#[Yy]}" ]; then
+                echo -e "${GREEN}[INFO]:${NC} Checking the version on the cache USB..."
+                "${CopyCache2Tmp[@]}" &>/dev/null
+                "${UnpackPKGfromTMP[@]}" &>/dev/null
+            else
+                echo -e "${GREEN}[INFO]:${NC} Copying the PKG from USB to this machine..."
+                "${CopyCache2Tmp[@]}" &>/dev/null
+                expandAndSet
+                return
+            fi
         else
-            echo -e "${GREEN}[INFO]:${NC} Copying the PKG from USB to this machine..."
-            "${CopyCache2Tmp[@]}" &>/dev/null
-            expandAndSet
-            return
+            echo -e "${GREEN}[INFO]:${NC} No InstallAssistant.pkg on the macOSCache found."
+            echo -e "${GREEN}[CHOICE]:${NC} Do you want to download it to the USB? (y/n)"
+            read answer </dev/tty
+            if [ "$answer" != "${answer#[Yy]}" ]; then
+                downloadForCacheUSB
+            elif [[ -f ${TMPDIR}${PKG} ]]; then
+                echo -e "${GREEN}[INFO]:${NC} Found a local PKG"
+                echo -e "${GREEN}[INFO]:${NC} Checking if the local PKG is up to date..."
+                "${UnpackPKGfromTMP[@]}" &>/dev/null
+            else
+                downloadInstaller
+                expandAndSet
+            fi
         fi
-    elif [[ -f ${TMPDIR}${PKG} ]]; then
-        echo -e "${GREEN}[INFO]:${NC} Found a local PKG"
-        echo -e "${GREEN}[INFO]:${NC} Checking if the local PKG is up to date..."
-        "${UnpackPKGfromTMP[@]}" &>/dev/null
-    else
-        downloadInstaller
-        expandAndSet
     fi
 
     ### we have to install the cached Package at first because otherwise we cannot get the version
@@ -282,10 +293,14 @@ function startLocalInstaller() {
 }
 
 function downloadForCacheUSB() {
-    ## still not match - ask user for download new version
-    echo -e "${BLUE}[INFO]:${NC} The cached installer does not match with server version."
-    echo -e "${BLUE}[INFO]:${NC} Cached: ${checkInstallerVersion}"
-    echo -e "${BLUE}[INFO]:${NC} Server: ${macOSVersion}"
+    if [[ -f ${CACHEDISK}${PKG} ]]; then
+        ## still not match - ask user for download new version
+        echo -e "${BLUE}[INFO]:${NC} The cached installer does not match with server version."
+        echo -e "${BLUE}[INFO]:${NC} Cached: ${checkInstallerVersion}"
+        echo -e "${BLUE}[INFO]:${NC} Server: ${macOSVersion}"
+    elif [[ -f ${CACHEDISK} ]]; then
+        echo
+    fi
     echo -n "Do you want to download the latest version to your cache disk (y/n)? "
     read answer </dev/tty
     if [ "$answer" != "${answer#[Yy]}" ]; then
@@ -304,7 +319,7 @@ function downloadForCacheUSB() {
         main
         return # i hope this isnt buggy
     fi
-    
+
 }
 
 function expandAndSet() {
@@ -317,7 +332,7 @@ function expandAndSet() {
     pkgutil --expand-full InstallAssistant.pkg Source
     echo -e "${GREEN}[INFO]:${NC} Copying in place ..."
     cp -R Source/Payload/Applications/"Install macOS ${macOSName}.app" "${dstDiskPath}"/private/tmp/ &>/dev/null
-    
+
     echo -e "${GREEN}[INFO]:${NC} Changing permissions ..."
     SSPATH="Install macOS ${macOSName}.app/Contents/SharedSupport"
     mkdir -p "$SSPATH"
@@ -363,8 +378,8 @@ main
 # USBcache no versioncheck                                                          successful
 # USBcache with versioncheck (already latest Version)                               successful
 # USBcache with versioncheck (use old vers anyway / dont downloadForCacheUSB)       successful
-# USBcache with versioncheck (downloadForCacheUSB)                                  successful 
+# USBcache with versioncheck (downloadForCacheUSB)                                  successful
 # Local PKG (already latest Version)                                                successful
 # Local PKG (not the latest Version)                                                not tested (maybe useless irl)
 # online only version                                                               not tested funzt bestimmt eh
-# 
+#
