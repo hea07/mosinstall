@@ -160,7 +160,7 @@ function versionChooser() {
 
 function checkForCache() {
 
-    # 
+    #
     # Checks if a USB cache is connected and if it has a IA.pkg on it OR if a local IA.pkg exists
     #
 
@@ -217,6 +217,8 @@ function checkForCache() {
                 downloadInstaller
                 expandAndSet
 
+            fi
+
         fi
 
     elif [[ -f ${TMPDIR}${PKG} ]]; then
@@ -241,11 +243,10 @@ function checkForCache() {
         expandAndSet
 
     fi
-
 }
 
 function versionChecker() {
-    
+
     #
     # checks the version of the selected PKG
     #
@@ -389,9 +390,9 @@ function unmountExternalDisks() {
 function main() {
     printInfo
     checkIntelOrAppleSilicon # calls eraseDisk function
-    versionChooser # sets macOSName, macOSVersion, macOSUrl variables
+    versionChooser           # sets macOSName, macOSVersion, macOSUrl variables
     checkForCache
-    
+
     unmountExternalDisks
 
     echo -e "${GREEN}[INFO]:${NC} Starting installer ..."
