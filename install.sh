@@ -19,6 +19,11 @@ read -r montereyVersion montereyLink <<< "$(curl -s https://latest-monterey.hisc
 read -r venturaVersion venturaLink <<< "$(curl -s https://latest-ventura.hischem.de | tr '|' ' ')"
 
 #
+# SONOMA
+#
+read -r sonomaVersion sonomaLink <<< "$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
+
+#
 # COLORS
 #
 GREEN='\033[0;32m'
@@ -123,8 +128,9 @@ function downloadInstaller() {
     echo
     echo -e "\t1. macOS Ventura\t${venturaVersion}"
     echo -e "\t2. macOS Monterey\t${montereyVersion}"
+    echo -e "\t3. macOS Sonoma\t${sonomaVersion}"
     echo
-    echo -e "${GREEN}[CHOICE]: Enter a number (1 or 2)${NC}"
+    echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
     read answer < /dev/tty
     echo
 
@@ -144,6 +150,12 @@ function downloadInstaller() {
             macOSName="Monterey"
             macOSVersion=${montereyVersion}
             macOSUrl=${montereyLink}
+            ;;
+
+        "3" )
+            macOSName="Sonoma"
+            macOSVersion=${sonomaVersion}
+            macOSUrl=${sonomaLink}
             ;;
         
        
