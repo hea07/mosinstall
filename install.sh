@@ -11,17 +11,23 @@
 #
 # MONTEREY
 #
-read -r montereyVersion montereyLink <<< "$(curl -s https://latest-monterey.hischem.de | tr '|' ' ')"
+#read -r montereyVersion montereyLink <<< "$(curl -s https://latest-monterey.hischem.de | tr '|' ' ')"
+montereyVersion="12.7.3"
+montereyLink="https://swcdn.apple.com/content/downloads/53/08/052-33037-A_AKHX79ZA4S/z7yb5wdcrk453a3hi7c3hc9n6zzju9di7f/InstallAssistant.pkg"
 
 #
 # VENTURA
 #
-read -r venturaVersion venturaLink <<< "$(curl -s https://latest-ventura.hischem.de | tr '|' ' ')"
+#read -r venturaVersion venturaLink <<< "$(curl -s https://latest-ventura.hischem.de | tr '|' ' ')"
+venturaVersion="13.6.4"
+venturaLink="https://swcdn.apple.com/content/downloads/32/13/052-33049-A_UX3Z28TPLL/702vi772ckrytq1r67eli9zrgsu8jxxoqw/InstallAssistant.pkg"
 
 #
 # SONOMA
 #
-read -r sonomaVersion sonomaLink <<< "$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
+#read -r sonomaVersion sonomaLink <<< "$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
+sonomaVersion="14.3.1"
+sonomaLink="https://swcdn.apple.com/content/downloads/62/37/052-40759-A_C4UWOSGC4S/ww0ftcbuatweg276cglca3e2d7g5hpvl2u/InstallAssistant.pkg"
 
 #
 # COLORS
