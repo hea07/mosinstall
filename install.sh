@@ -138,8 +138,8 @@ function downloadInstaller() {
     echo -e "\t3. macOS Monterey\t${montereyVersion}"
     echo
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
-    echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 5 SECONDS...${NC}"
-    read -t 5 answer < /dev/tty || answer="1" # Timeout set to 5 seconds, default to option 1
+    echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
+    read -t 10 answer < /dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
     echo
 
     if [ -z "$answer" ]; then
