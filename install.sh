@@ -74,7 +74,8 @@ function eraseDisk() {
     echo -e "${GREEN}[INFO]:${NC} Destination disk is: ${diskPath}"
     echo
     echo -e "${RED}[CHOICE]: Do you want to delete all data on this computer? (y/n)${NC}"
-    read answer < /dev/tty
+    echo -e "${GREEN}SKIPPING IN 10 SECONDS...${NC}"
+    read -t 10 answer < /dev/tty || answer="n" # Timeout set to 10 seconds, default to option 1
     echo
     
     if [ "$answer" != "${answer#[Yy]}" ];then
@@ -132,12 +133,13 @@ function downloadInstaller() {
     echo
     echo -e "${GREEN}[CHOICE]:${NC} Choose your macOS Version"
     echo
-    echo -e "\t1. macOS Ventura\t${venturaVersion}"
-    echo -e "\t2. macOS Monterey\t${montereyVersion}"
-    echo -e "\t3. macOS Sonoma\t${sonomaVersion}"
+    echo -e "\t1. macOS Sonoma\t\t${sonomaVersion}"
+    echo -e "\t2. macOS Ventura\t${venturaVersion}"
+    echo -e "\t3. macOS Monterey\t${montereyVersion}"
     echo
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
-    read answer < /dev/tty
+    echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
+    read -t 10 answer < /dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
     echo
 
     if [ -z "$answer" ]; then
@@ -147,27 +149,24 @@ function downloadInstaller() {
     case $answer in
 
         "1" )
+            macOSName="Sonoma"
+            macOSVersion=${sonomaVersion}
+            macOSUrl=${sonomaLink}
+            ;;
+        "2" )
             macOSName="Ventura"
             macOSVersion=${venturaVersion}
             macOSUrl=${venturaLink}
             ;;
 
-        "2" )
+        "3" )
             macOSName="Monterey"
             macOSVersion=${montereyVersion}
             macOSUrl=${montereyLink}
             ;;
-
-        "3" )
-            macOSName="Sonoma"
-            macOSVersion=${sonomaVersion}
-            macOSUrl=${sonomaLink}
-            ;;
-        
-       
         
         * )
-            echo -e "${RED}[INFO]:${NC} Nothing selected, exiting now ..."
+            echo -e "${RED}[INFO]:${NC} Invalid selection, exiting now ..."
             exit
             ;;
 
