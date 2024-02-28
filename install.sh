@@ -75,8 +75,12 @@ function eraseDisk() {
     echo
     echo -e "${RED}[CHOICE]: Do you want to delete all data on this computer? (y/n)${NC}"
     echo -e "${GREEN}SKIPPING IN 5 SECONDS...${NC}"
-    read -t 5 answer < /dev/tty || answer="n" # Timeout set to 5 seconds, default to option 1
+    read -t 5 answer < /dev/tty || answer="n" # Timeout set to 5 seconds, default to no
     echo
+
+    if [ -z "$answer" ]; then
+    answer="n"
+    fi
     
     if [ "$answer" != "${answer#[Yy]}" ];then
 
