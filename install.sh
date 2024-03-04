@@ -26,8 +26,11 @@ venturaLink="https://swcdn.apple.com/content/downloads/32/13/052-33049-A_UX3Z28T
 # SONOMA
 #
 #read -r sonomaVersion sonomaLink <<< "$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
-sonomaVersion="14.3.1"
-sonomaLink="https://swcdn.apple.com/content/downloads/62/37/052-40759-A_C4UWOSGC4S/ww0ftcbuatweg276cglca3e2d7g5hpvl2u/InstallAssistant.pkg"
+sonomaVersion="14.3"
+sonomaLink="https://swcdn.apple.com/content/downloads/62/31/042-78233-A_YIMC5ZQM8T/yj7iay56cmvc2cux0qm55lfweb2u90euyo/InstallAssistant.pkg"
+
+sonomaOldVersion="14.1 (non M3)"
+sonomaOldVersionLink="https://swcdn.apple.com/content/downloads/39/32/042-86434-A_HKAQU4T2OA/y8aibplm2qgy1ce8ux8fxy1efgsbvprgp2/InstallAssistant.pkg"
 
 #
 # COLORS
@@ -140,6 +143,7 @@ function downloadInstaller() {
     echo -e "\t1. macOS Sonoma\t\t${sonomaVersion}"
     echo -e "\t2. macOS Ventura\t${venturaVersion}"
     echo -e "\t3. macOS Monterey\t${montereyVersion}"
+    echo -e "\t4. macOS Sonoma\t\t${sonomaOldVersion}"
     echo
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
     echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
@@ -167,6 +171,12 @@ function downloadInstaller() {
             macOSName="Monterey"
             macOSVersion=${montereyVersion}
             macOSUrl=${montereyLink}
+            ;;
+
+        "4" )
+            macOSName="Sonoma"
+            macOSVersion=${sonomaOldVersion}
+            macOSUrl=${sonomaOldVersionLink}
             ;;
         
         * )
