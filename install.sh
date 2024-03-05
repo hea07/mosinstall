@@ -146,7 +146,7 @@ function downloadInstaller() {
     echo -e "\t2. macOS Ventura\t${venturaVersion}"
     echo -e "\t3. macOS Monterey\t${montereyVersion}"
     echo -e "\t4. macOS Sonoma\t\t${sonomaOldVersion}"
-    echo -e "\t4. macOS Sonoma\t\t${sonomaOldVersionM3}"
+    echo -e "\t5. macOS Sonoma\t\t${sonomaOldVersionM3}"
     echo
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
     echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
