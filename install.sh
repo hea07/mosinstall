@@ -32,6 +32,8 @@ sonomaLink="https://swcdn.apple.com/content/downloads/62/31/042-78233-A_YIMC5ZQM
 sonomaOldVersion="14.1 (non M3)"
 sonomaOldVersionLink="https://swcdn.apple.com/content/downloads/39/32/042-86434-A_HKAQU4T2OA/y8aibplm2qgy1ce8ux8fxy1efgsbvprgp2/InstallAssistant.pkg"
 
+sonomaOldVersionM3="14.1 (only M3)"
+sonomaOldVersionM3Link="https://swcdn.apple.com/content/downloads/54/11/042-41700-A_6GDS7ETYNV/zxpkgymp3w9bm3py7ybs9n9ud27qwnwx7u/InstallAssistant.pkg"
 #
 # COLORS
 #
@@ -144,6 +146,7 @@ function downloadInstaller() {
     echo -e "\t2. macOS Ventura\t${venturaVersion}"
     echo -e "\t3. macOS Monterey\t${montereyVersion}"
     echo -e "\t4. macOS Sonoma\t\t${sonomaOldVersion}"
+    echo -e "\t4. macOS Sonoma\t\t${sonomaOldVersionM3}"
     echo
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
     echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
@@ -177,6 +180,12 @@ function downloadInstaller() {
             macOSName="Sonoma"
             macOSVersion=${sonomaOldVersion}
             macOSUrl=${sonomaOldVersionLink}
+            ;;
+
+        "5" )
+            macOSName="Sonoma"
+            macOSVersion=${sonomaOldVersionM3}
+            macOSUrl=${sonomaOldVersionM3Link}
             ;;
         
         * )
