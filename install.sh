@@ -11,23 +11,23 @@
 #
 # MONTEREY
 #
-#read -r montereyVersion montereyLink <<< "$(curl -s https://latest-monterey.hischem.de | tr '|' ' ')"
-montereyVersion="12.7.3"
-montereyLink="https://swcdn.apple.com/content/downloads/53/08/052-33037-A_AKHX79ZA4S/z7yb5wdcrk453a3hi7c3hc9n6zzju9di7f/InstallAssistant.pkg"
+read -r montereyVersion montereyLink <<< "$(curl -s https://latest-monterey.hischem.de | tr '|' ' ')"
+#montereyVersion="12.7.3"
+#montereyLink="https://swcdn.apple.com/content/downloads/53/08/052-33037-A_AKHX79ZA4S/z7yb5wdcrk453a3hi7c3hc9n6zzju9di7f/InstallAssistant.pkg"
 
 #
 # VENTURA
 #
-#read -r venturaVersion venturaLink <<< "$(curl -s https://latest-ventura.hischem.de | tr '|' ' ')"
-venturaVersion="13.6.4"
-venturaLink="https://swcdn.apple.com/content/downloads/32/13/052-33049-A_UX3Z28TPLL/702vi772ckrytq1r67eli9zrgsu8jxxoqw/InstallAssistant.pkg"
+read -r venturaVersion venturaLink <<< "$(curl -s https://latest-ventura.hischem.de | tr '|' ' ')"
+#venturaVersion="13.6.4"
+#venturaLink="https://swcdn.apple.com/content/downloads/32/13/052-33049-A_UX3Z28TPLL/702vi772ckrytq1r67eli9zrgsu8jxxoqw/InstallAssistant.pkg"
 
 #
 # SONOMA
 #
-#read -r sonomaVersion sonomaLink <<< "$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
-sonomaVersion="14.3"
-sonomaLink="https://swcdn.apple.com/content/downloads/62/31/042-78233-A_YIMC5ZQM8T/yj7iay56cmvc2cux0qm55lfweb2u90euyo/InstallAssistant.pkg"
+read -r sonomaVersion sonomaLink <<< "$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
+#sonomaVersion="14.3"
+#sonomaLink="https://swcdn.apple.com/content/downloads/62/31/042-78233-A_YIMC5ZQM8T/yj7iay56cmvc2cux0qm55lfweb2u90euyo/InstallAssistant.pkg"
 
 sonomaOldVersion="14.1 (non M3)"
 sonomaOldVersionLink="https://swcdn.apple.com/content/downloads/39/32/042-86434-A_HKAQU4T2OA/y8aibplm2qgy1ce8ux8fxy1efgsbvprgp2/InstallAssistant.pkg"
