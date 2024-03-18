@@ -166,13 +166,20 @@ function downloadInstaller() {
     echo
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
     
-    if [ "$arg2" = "1" ]; then
-        answer="1"
-    else
-        echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
-        read -t 10 answer < /dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
-        echo
-    fi
+    case $arg2 in
+
+        "1" )
+            answer="1"
+            ;;
+        "2" )
+            answer="2"
+            ;;
+        * )
+            echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
+            read -t 10 answer < /dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
+            echo
+            ;;
+    esac
 
     if [ -z "$answer" ]; then
     answer="1"
