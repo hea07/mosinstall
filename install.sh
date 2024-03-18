@@ -40,11 +40,11 @@ read -r sonomaVersion sonomaLink <<< "$(curl -s https://latest-sonoma.hischem.de
 #sonomaVersion="14.3"
 #sonomaLink="https://swcdn.apple.com/content/downloads/62/31/042-78233-A_YIMC5ZQM8T/yj7iay56cmvc2cux0qm55lfweb2u90euyo/InstallAssistant.pkg"
 
-sonomaOldVersion="14.1 (non M3)"
-sonomaOldVersionLink="https://swcdn.apple.com/content/downloads/39/32/042-86434-A_HKAQU4T2OA/y8aibplm2qgy1ce8ux8fxy1efgsbvprgp2/InstallAssistant.pkg"
+sonomaOldVersion="14.1.2 (non M3)"
+sonomaOldVersionLink="https://swcdn.apple.com/content/downloads/24/37/052-09398-A_DIKZGBNOM0/y4rz9dued01dtyl65nxqgd08wj2ar5cr6v/InstallAssistant.pkg"
 
-sonomaOldVersionM3="14.1 (only M3)"
-sonomaOldVersionM3Link="https://swcdn.apple.com/content/downloads/54/11/042-41700-A_6GDS7ETYNV/zxpkgymp3w9bm3py7ybs9n9ud27qwnwx7u/InstallAssistant.pkg"
+sonomaOldVersionM3="14.1.2 (only M3)"
+sonomaOldVersionM3Link="https://swcdn.apple.com/content/downloads/54/47/052-09460-A_HHL1JV64MF/b7arop3bkdru7i7anbw4qdlij5tqoz20hp/InstallAssistant.pkg"
 #
 # COLORS
 #
