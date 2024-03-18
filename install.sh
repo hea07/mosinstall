@@ -2,6 +2,17 @@
 # THIS WAS CHANGED TO WORK WITH ALL VRESIONS: MONTEREY, VENTURA
 # NO WARRANTY OR HELP FROM ME
 
+# Check if arguments were provided
+if [ "$#" -eq 0 ]; then
+    echo "No arguments provided."
+else
+    echo "Arguments provided: $@"
+fi
+
+arg1="$1"
+arg2="$2"
+
+# Rest of your script goes here
 
 
 # ----------------
@@ -79,12 +90,17 @@ function eraseDisk() {
     echo -e "${GREEN}[INFO]:${NC} Destination disk is: ${diskPath}"
     echo
     echo -e "${RED}[CHOICE]: Do you want to delete all data on this computer? (y/n)${NC}"
-    echo -e "${GREEN}SKIPPING IN 5 SECONDS...${NC}"
-    read -t 5 answer < /dev/tty || answer="n" # Timeout set to 5 seconds, default to no
-    echo
+    
+    if [ "$arg1" = "n" ]; then
+        answer="n"
+    else
+        echo -e "${GREEN}SKIPPING IN 5 SECONDS...${NC}"
+        read -t 5 answer < /dev/tty || answer="n" # Timeout set to 5 seconds, default to no
+        echo $@
+    fi
 
     if [ -z "$answer" ]; then
-    answer="n"
+        answer="n"
     fi
     
     if [ "$answer" != "${answer#[Yy]}" ];then
@@ -149,9 +165,14 @@ function downloadInstaller() {
     echo -e "\t5. macOS Sonoma\t\t${sonomaOldVersionM3}"
     echo
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
-    echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
-    read -t 10 answer < /dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
-    echo
+    
+    if [ "$arg2" = "1" ]; then
+        answer="1"
+    else
+        echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
+        read -t 10 answer < /dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
+        echo
+    fi
 
     if [ -z "$answer" ]; then
     answer="1"
