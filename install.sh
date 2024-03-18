@@ -1,3 +1,4 @@
+#!/bin/bash
 # ORIGINAL FILE FROM https://github.com/macBerlin/macOS_erase/blob/main/macOS_erase_Monterey
 # THIS WAS CHANGED TO WORK WITH ALL VRESIONS: MONTEREY, VENTURA
 # NO WARRANTY OR HELP FROM ME
