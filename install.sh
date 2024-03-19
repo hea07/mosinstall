@@ -95,11 +95,11 @@ function eraseDisk() {
     case $arg1 in
 
         "y" )
-            code
+            answer="y"
             ;;
 
         "n" )
-            code
+            answer="n"
             ;;
 
         * )
