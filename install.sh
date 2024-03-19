@@ -88,12 +88,8 @@ function eraseDisk() {
 
     case $arg1 in
 
-    "y")
-        answer="y"
-        ;;
-
-    "n")
-        answer="n"
+    [YyNn])
+        answer="$arg2"
         ;;
 
     *)
@@ -167,62 +163,50 @@ function downloadInstaller() {
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
 
     case $arg2 in
-        "1")
-            answer="1"
-            ;;
-        "2")
-            answer="2"
-            ;;
-        "3")
-            answer="3"
-            ;;
-        "4")
-            answer="4"
-            ;;
-        "5")
-            answer="5"
-            ;;
-        *)
-            echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
-            read -t 10 answer </dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
-            echo
-            ;;
+    [1-5])
+        answer="$arg2"
+        ;;
+    *)
+        echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
+        read -t 10 answer </dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
+        echo
+        ;;
     esac
 
     case $answer in
-        "1")
-            macOSName="Sonoma"
-            macOSVersion=${sonomaVersion}
-            macOSUrl=${sonomaLink}
-            ;;
-        "2")
-            macOSName="Ventura"
-            macOSVersion=${venturaVersion}
-            macOSUrl=${venturaLink}
-            ;;
+    "1")
+        macOSName="Sonoma"
+        macOSVersion=${sonomaVersion}
+        macOSUrl=${sonomaLink}
+        ;;
+    "2")
+        macOSName="Ventura"
+        macOSVersion=${venturaVersion}
+        macOSUrl=${venturaLink}
+        ;;
 
-        "3")
-            macOSName="Monterey"
-            macOSVersion=${montereyVersion}
-            macOSUrl=${montereyLink}
-            ;;
+    "3")
+        macOSName="Monterey"
+        macOSVersion=${montereyVersion}
+        macOSUrl=${montereyLink}
+        ;;
 
-        "4")
-            macOSName="Sonoma"
-            macOSVersion=${sonomaOldVersion}
-            macOSUrl=${sonomaOldVersionLink}
-            ;;
+    "4")
+        macOSName="Sonoma"
+        macOSVersion=${sonomaOldVersion}
+        macOSUrl=${sonomaOldVersionLink}
+        ;;
 
-        "5")
-            macOSName="Sonoma"
-            macOSVersion=${sonomaOldVersionM3}
-            macOSUrl=${sonomaOldVersionM3Link}
-            ;;
+    "5")
+        macOSName="Sonoma"
+        macOSVersion=${sonomaOldVersionM3}
+        macOSUrl=${sonomaOldVersionM3Link}
+        ;;
 
-        *)
-            echo -e "${RED}[INFO]:${NC} Invalid selection, exiting now ..."
-            exit
-            ;;
+    *)
+        echo -e "${RED}[INFO]:${NC} Invalid selection, exiting now ..."
+        exit
+        ;;
     esac
 
     echo -e "${GREEN}[INFO]:${NC} You chose macOS ${macOSName} ${macOSVersion}"
@@ -232,20 +216,20 @@ function downloadInstaller() {
         read useIA </dev/tty
 
         case $useIA in
-            [Yy]*)
-                echo -e "${GREEN}[INFO]:${NC} Using predownloaded Installer."
-                return
-                ;;
+        [Yy]*)
+            echo -e "${GREEN}[INFO]:${NC} Using predownloaded Installer."
+            return
+            ;;
 
-            [Nn]*)
-                echo -e "${GREEN}[INFO]:${NC} Deleting ..."
-                rm InstallAssistant.pkg >/dev/null 2>&1
-                ;;
+        [Nn]*)
+            echo -e "${GREEN}[INFO]:${NC} Deleting ..."
+            rm InstallAssistant.pkg >/dev/null 2>&1
+            ;;
 
-            *)
-                echo -e "${GREEN}[INFO]:${NC} Invalid input, exiting ..."
-                exit
-                ;;
+        *)
+            echo -e "${GREEN}[INFO]:${NC} Invalid input, exiting ..."
+            exit
+            ;;
         esac
     fi
 
