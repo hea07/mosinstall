@@ -92,17 +92,22 @@ function eraseDisk() {
     echo
     echo -e "${RED}[CHOICE]: Do you want to delete all data on this computer? (y/n)${NC}"
     
-    if [ "$arg1" = "n" ]; then
-        answer="n"
-    else
-        echo -e "${GREEN}SKIPPING IN 5 SECONDS...${NC}"
-        read -t 5 answer < /dev/tty || answer="n" # Timeout set to 5 seconds, default to no
-        echo $@
-    fi
+    case $arg1 in
 
-    if [ -z "$answer" ]; then
-        answer="n"
-    fi
+        "y" )
+            code
+            ;;
+
+        "n" )
+            code
+            ;;
+
+        * )
+            echo -e "${GREEN}SKIPPING IN 5 SECONDS...${NC}"
+            read -t 5 answer < /dev/tty || answer="n" # Timeout set to 5 seconds, default to no
+            echo $@
+            ;;
+    esac
     
     if [ "$answer" != "${answer#[Yy]}" ];then
 
@@ -180,11 +185,8 @@ function downloadInstaller() {
             read -t 10 answer < /dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
             echo
             ;;
+            
     esac
-
-    if [ -z "$answer" ]; then
-    answer="1"
-    fi
 
     case $answer in
 
