@@ -13,31 +13,14 @@ fi
 arg1="$1"
 arg2="$2"
 
-# Rest of your script goes here
-
-
 # ----------------
 # SETUP
 # ----------------
 
 #
-# MONTEREY
+# SONOMA (14)
 #
-read -r montereyVersion montereyLink <<< "$(curl -s https://latest-monterey.hischem.de | tr '|' ' ')"
-#montereyVersion="12.7.3"
-#montereyLink="https://swcdn.apple.com/content/downloads/53/08/052-33037-A_AKHX79ZA4S/z7yb5wdcrk453a3hi7c3hc9n6zzju9di7f/InstallAssistant.pkg"
-
-#
-# VENTURA
-#
-read -r venturaVersion venturaLink <<< "$(curl -s https://latest-ventura.hischem.de | tr '|' ' ')"
-#venturaVersion="13.6.4"
-#venturaLink="https://swcdn.apple.com/content/downloads/32/13/052-33049-A_UX3Z28TPLL/702vi772ckrytq1r67eli9zrgsu8jxxoqw/InstallAssistant.pkg"
-
-#
-# SONOMA
-#
-read -r sonomaVersion sonomaLink <<< "$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
+read -r sonomaVersion sonomaLink <<<"$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
 #sonomaVersion="14.3"
 #sonomaLink="https://swcdn.apple.com/content/downloads/62/31/042-78233-A_YIMC5ZQM8T/yj7iay56cmvc2cux0qm55lfweb2u90euyo/InstallAssistant.pkg"
 
@@ -46,15 +29,28 @@ sonomaOldVersionLink="https://swcdn.apple.com/content/downloads/24/37/052-09398-
 
 sonomaOldVersionM3="14.1.2 (only M3)"
 sonomaOldVersionM3Link="https://swcdn.apple.com/content/downloads/54/47/052-09460-A_HHL1JV64MF/b7arop3bkdru7i7anbw4qdlij5tqoz20hp/InstallAssistant.pkg"
+
+#
+# VENTURA (13)
+#
+read -r venturaVersion venturaLink <<<"$(curl -s https://latest-ventura.hischem.de | tr '|' ' ')"
+#venturaVersion="13.6.4"
+#venturaLink="https://swcdn.apple.com/content/downloads/32/13/052-33049-A_UX3Z28TPLL/702vi772ckrytq1r67eli9zrgsu8jxxoqw/InstallAssistant.pkg"
+
+#
+# MONTEREY (12)
+#
+read -r montereyVersion montereyLink <<<"$(curl -s https://latest-monterey.hischem.de | tr '|' ' ')"
+#montereyVersion="12.7.3"
+#montereyLink="https://swcdn.apple.com/content/downloads/53/08/052-33037-A_AKHX79ZA4S/z7yb5wdcrk453a3hi7c3hc9n6zzju9di7f/InstallAssistant.pkg"
+
 #
 # COLORS
 #
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'  
+BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
-
-
 
 function printInfo() {
 
@@ -69,8 +65,6 @@ function printInfo() {
 
 }
 
-
-
 function eraseDisk() {
 
     #
@@ -78,7 +72,7 @@ function eraseDisk() {
     # checks erased disks
     #
 
-    if [[ -d '/Volumes/Untitled' ]]; then      
+    if [[ -d '/Volumes/Untitled' ]]; then
         diskPath='/Volumes/Untitled'
         diskName="Untitled"
     fi
@@ -91,48 +85,48 @@ function eraseDisk() {
     echo -e "${GREEN}[INFO]:${NC} Destination disk is: ${diskPath}"
     echo
     echo -e "${RED}[CHOICE]: Do you want to delete all data on this computer? (y/n)${NC}"
-    
+
     case $arg1 in
 
-        "y" )
-            answer="y"
-            ;;
+    "y")
+        answer="y"
+        ;;
 
-        "n" )
-            answer="n"
-            ;;
+    "n")
+        answer="n"
+        ;;
 
-        * )
-            echo -e "${GREEN}SKIPPING IN 5 SECONDS...${NC}"
-            read -t 5 answer < /dev/tty || answer="n" # Timeout set to 5 seconds, default to no
-            echo $@
-            ;;
+    *)
+        echo -e "${GREEN}SKIPPING IN 5 SECONDS...${NC}"
+        read -t 5 answer </dev/tty || answer="n" # Timeout set to 5 seconds, defaults to "no"
+        echo $@
+        ;;
     esac
-    
-    if [ "$answer" != "${answer#[Yy]}" ];then
+
+    if [ "$answer" != "${answer#[Yy]}" ]; then
 
         echo -e "${GREEN}[INFO]:${NC} Ckecking Volumes ..."
         internalDisk=$(diskutil list | grep "synthesized" | awk -F " " {'print $1'} | awk -F "/" {'print $3'} | head -1)
         echo -e "${GREEN}[INFO]:${NC} APFS synthesized disk is: ${internalDisk}"
-        DSK_MACINTOSH_HD=$(diskutil list $internalDisk | grep -i "${diskName}" |  grep -vi "data" | awk {'print $NF'} )
+        DSK_MACINTOSH_HD=$(diskutil list $internalDisk | grep -i "${diskName}" | grep -vi "data" | awk {'print $NF'})
         echo -e "${GREEN}[INFO]:${NC} APFS Macintosh HD disk is: ${DSK_MACINTOSH_HD}"
         DSK_MACINTOSH_HD_DATA=$(diskutil list $internalDisk | grep -i "DATA" | awk {'print $NF'})
-        
-        if [ -z "$DSK_MACINTOSH_HD_DATA" ];then
+
+        if [ -z "$DSK_MACINTOSH_HD_DATA" ]; then
             echo -e "${GREEN}[INFO]:${NC} APFS Data HD not found. Skipping."
         else
             echo -e "${GREEN}[INFO]:${NC} APFS Data HD disk is: ${DSK_MACINTOSH_HD_DATA}"
-            umount -f /dev/${DSK_MACINTOSH_HD_DATA} /dev/null &> /dev/null
+            umount -f /dev/${DSK_MACINTOSH_HD_DATA} /dev/null &>/dev/null
             echo -e "${GREEN}[INFO]:${NC} Deleting Data partition ..."
-            diskutil apfs deleteVolume ${DSK_MACINTOSH_HD_DATA} &> /dev/null
+            diskutil apfs deleteVolume ${DSK_MACINTOSH_HD_DATA} &>/dev/null
         fi
 
-        # erase volume, create new on called "Macintish HD"
+        # erase volume, create new one called "Macintosh HD"
         echo -e "${GREEN}[INFO]:${NC} Deleting Macintosh HD ..."
-        diskutil apfs eraseVolume ${DSK_MACINTOSH_HD} -name "Macintosh HD" &> /dev/null
+        diskutil apfs eraseVolume ${DSK_MACINTOSH_HD} -name "Macintosh HD" &>/dev/null
         diskPath='/Volumes/Macintosh HD'
         diskName='Macintosh HD'
-        diskutil mount /dev/${DSK_MACINTOSH_HD} &> /dev/null
+        diskutil mount /dev/${DSK_MACINTOSH_HD} &>/dev/null
 
         if [[ $? -ne 0 ]]; then
             echo -e "${RED}[ERROR]:${NC} Error mounting Macintosh HD."
@@ -140,13 +134,12 @@ function eraseDisk() {
             echo -e "${RED}[ERROR]:${NC} Exiting."
             exit
         fi
+
     else
         echo -e "${GREEN}[INFO]:${NC} Skipping disk deletion."
     fi
 
 }
-
-
 
 function downloadInstaller() {
 
@@ -157,7 +150,7 @@ function downloadInstaller() {
     #
 
     echo -e "${GREEN}[INFO]:${NC} Set up folder ..."
-    # rm -rf "${diskPath}"/private/tmp/* >/dev/null 2>&1 ### This would delete manually downlaoded Installers ...
+    # rm -rf "${diskPath}"/private/tmp/* >/dev/null 2>&1 ### This would delete manually downloaded Installers ...
     mkdir -p "${diskPath}"/private/tmp
     cd "${diskPath}/private/tmp/"
 
@@ -167,103 +160,107 @@ function downloadInstaller() {
     echo -e "\t1. macOS Sonoma\t\t${sonomaVersion}"
     echo -e "\t2. macOS Ventura\t${venturaVersion}"
     echo -e "\t3. macOS Monterey\t${montereyVersion}"
+    echo
     echo -e "\t4. macOS Sonoma\t\t${sonomaOldVersion}"
     echo -e "\t5. macOS Sonoma\t\t${sonomaOldVersionM3}"
     echo
     echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
-    
-    case $arg2 in
 
-        "1" )
+    case $arg2 in
+        "1")
             answer="1"
             ;;
-        "2" )
+        "2")
             answer="2"
             ;;
-        * )
+        "3")
+            answer="3"
+            ;;
+        "4")
+            answer="4"
+            ;;
+        "5")
+            answer="5"
+            ;;
+        *)
             echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
-            read -t 10 answer < /dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
+            read -t 10 answer </dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
             echo
             ;;
-            
     esac
 
     case $answer in
-
-        "1" )
+        "1")
             macOSName="Sonoma"
             macOSVersion=${sonomaVersion}
             macOSUrl=${sonomaLink}
             ;;
-        "2" )
+        "2")
             macOSName="Ventura"
             macOSVersion=${venturaVersion}
             macOSUrl=${venturaLink}
             ;;
 
-        "3" )
+        "3")
             macOSName="Monterey"
             macOSVersion=${montereyVersion}
             macOSUrl=${montereyLink}
             ;;
 
-        "4" )
+        "4")
             macOSName="Sonoma"
             macOSVersion=${sonomaOldVersion}
             macOSUrl=${sonomaOldVersionLink}
             ;;
 
-        "5" )
+        "5")
             macOSName="Sonoma"
             macOSVersion=${sonomaOldVersionM3}
             macOSUrl=${sonomaOldVersionM3Link}
             ;;
-        
-        * )
+
+        *)
             echo -e "${RED}[INFO]:${NC} Invalid selection, exiting now ..."
             exit
             ;;
-
     esac
 
     echo -e "${GREEN}[INFO]:${NC} You chose macOS ${macOSName} ${macOSVersion}"
 
     if [[ -f "InstallAssistant.pkg" ]]; then
         echo -e "${GREEN}[INFO]:${NC} InstallAssistant.pkg found, use that one? (Y/n)"
-        read useIA < /dev/tty
+        read useIA </dev/tty
 
         case $useIA in
-            [Yy]* )
+            [Yy]*)
                 echo -e "${GREEN}[INFO]:${NC} Using predownloaded Installer."
                 return
                 ;;
-            
-            [Nn]* )
+
+            [Nn]*)
                 echo -e "${GREEN}[INFO]:${NC} Deleting ..."
                 rm InstallAssistant.pkg >/dev/null 2>&1
                 ;;
-            
-            * )
+
+            *)
                 echo -e "${GREEN}[INFO]:${NC} Invalid input, exiting ..."
                 exit
                 ;;
         esac
-    fi 
+    fi
 
     echo
     echo -e "${GREEN}[INFO]:${NC} Downloading files from Apple ..."
-    curl -L --progress-bar  -f -o InstallAssistant.pkg ${macOSUrl}
-    
+    curl -L --progress-bar -f -o InstallAssistant.pkg ${macOSUrl}
+
     if [[ $? -eq 0 ]]; then
         echo -e "${GREEN}[INFO]:${NC} Download finished."
-    else 
+    else
         echo -e "${RED}[ERROR]:${NC} Download failed. Exiting now!"
         exit
     fi
 
 }
-
-
 
 function expandAndSet() {
 
@@ -275,7 +272,7 @@ function expandAndSet() {
     pkgutil --expand-full InstallAssistant.pkg Source
     echo -e "${GREEN}[INFO]:${NC} Copying in place ..."
     cp -R Source/Payload/Applications/"Install macOS ${macOSName}.app" "${diskPath}"/private/tmp/ &>/dev/null
-    
+
     echo -e "${GREEN}[INFO]:${NC} Changing permissions ..."
     SSPATH="Install macOS ${macOSName}.app/Contents/SharedSupport"
     mkdir -p "$SSPATH"
@@ -292,31 +289,27 @@ function expandAndSet() {
 
 }
 
-
-
 function unmountExternalDisks() {
 
     #
     # will check for external media and will unmount them before installation
     #
-    
+
     echo -e "${GREEN}[INFO]:${NC} Looking for external drives and unmounting ..."
     externalDisk=$(diskutil list | grep external | awk -F " " {'print $1'})
-    diskutil umountDisk $externalDisk 2> /dev/null
+    diskutil umountDisk $externalDisk 2>/dev/null
 
 }
-
-
 
 function main() {
 
     #
     # main runner
     #
-    
+
     printInfo
     eraseDisk
-    
+
     sleep 1
 
     downloadInstaller
