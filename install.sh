@@ -59,9 +59,17 @@ function printInfo() {
     #
 
     echo
-    echo -e "${RED}This script can remove all data on your computer!${NC}"
-    echo -e "${RED}Press CTRL-Z to cancel this process anytime!${NC}"
-    echo -e "${GREEN}Starting processes ...${NC}"
+    echo -e "${GREEN}##########################################################${NC}"
+    echo -e "${GREEN} #                                                      #${NC}"
+    echo -e "${GREEN}  #    This script let's you download and install a    #${NC}"
+    echo -e "${GREEN}  #  macOS Version of your choice from Apple's Server  #${NC}"
+    echo -e "${GREEN} #                                                      #${NC}"
+    echo -e "${GREEN}##########################################################${NC}"
+    #echo -e "${GREEN}  #   THIS SCRIPT CAN REMOVE ALL DATA ON YOUR COMPUTER!  #${NC}"
+    #echo -e "${GREEN}  #                                                      #${NC}"
+    #echo -e "${GREEN} #                                                        #${NC}"
+    #echo -e "${GREEN}############################################################${NC}"
+    #echo
 
 }
 
@@ -82,9 +90,9 @@ function eraseDisk() {
         diskName="Macintosh HD"
     fi
 
-    echo -e "${GREEN}Destination disk is: ${diskPath}${NC}"
+    #echo -e "${GREEN}Destination disk is: ${diskPath}${NC}"
     echo
-    echo -e "${RED}[CHOICE]: Do you want to delete all data on this computer? (y/n)${NC}"
+    
 
     case $arg1 in
 
@@ -93,7 +101,13 @@ function eraseDisk() {
             ;;
 
         *)
-            echo -e "${GREEN}SKIPPING IN 5 SECONDS...${NC}"
+            echo -e "${RED}##########################################################${NC}"
+            echo -e "${RED}#                                                        #${NC}"
+            echo -e "${RED}# DO YOU WANT TO DELETE ALL DATA ON THIS COMPUTER? (Y/N) #${NC}"
+            echo -e "${RED}#                                                        #${NC}"
+            echo -e "${RED}#                SKIPPING IN 5 SECONDS...                #${NC}"
+            echo -e "${RED}#                                                        #${NC}"
+            echo -e "${RED}##########################################################${NC}"
             read -t 5 answer </dev/tty || answer="n" # Timeout set to 5 seconds, defaults to "no"
             echo $@
             ;;
@@ -101,7 +115,7 @@ function eraseDisk() {
 
     if [ "$answer" != "${answer#[Yy]}" ]; then
 
-        echo -e "${GREEN}Ckecking Volumes ...${NC}"
+        echo -e "${GREEN}Ckecking Volumes...${NC}"
         internalDisk=$(diskutil list | grep "synthesized" | awk -F " " {'print $1'} | awk -F "/" {'print $3'} | head -1)
         echo -e "${GREEN}APFS synthesized disk is: ${internalDisk}${NC}"
         DSK_MACINTOSH_HD=$(diskutil list $internalDisk | grep -i "${diskName}" | grep -vi "data" | awk {'print $NF'})
@@ -118,16 +132,16 @@ function eraseDisk() {
         fi
 
         # erase volume, create new one called "Macintosh HD"
-        echo -e "${GREEN} Deleting Macintosh HD...${NC}"
+        echo -e "${GREEN}Deleting Macintosh HD...${NC}"
         diskutil apfs eraseVolume ${DSK_MACINTOSH_HD} -name "Macintosh HD" &>/dev/null
         diskPath='/Volumes/Macintosh HD'
         diskName='Macintosh HD'
         diskutil mount /dev/${DSK_MACINTOSH_HD} &>/dev/null
 
         if [[ $? -ne 0 ]]; then
-            echo -e "${RED}[ERROR]: Error mounting Macintosh HD.${NC}"
-            echo -e "${RED}[ERROR]: Please delete the volume yourself.${NC}"
-            echo -e "${RED}[ERROR]: Exiting.${NC}"
+            echo -e "${RED}Error mounting Macintosh HD.${NC}"
+            echo -e "${RED}Please delete the volume yourself.${NC}"
+            echo -e "${RED}Exiting${NC}"
             exit
         fi
 
@@ -145,13 +159,12 @@ function downloadInstaller() {
     # downloads the installer
     #
 
-    echo -e "${GREEN} Set up folder...${NC}"
-    # rm -rf "${diskPath}"/private/tmp/* >/dev/null 2>&1 ### This would delete manually downloaded Installers ...
+    #echo -e "${GREEN}Setting up folder...${NC}"
     mkdir -p "${diskPath}"/private/tmp
     cd "${diskPath}/private/tmp/"
 
     echo
-    echo -e "${GREEN}[CHOICE]: Choose your macOS Version${NC}"
+    echo -e "${NC}Choose your macOS Version:${NC}"
     echo
     echo -e "\t1. macOS Sonoma\t\t${sonomaVersion}"
     echo -e "\t2. macOS Ventura\t${venturaVersion}"
@@ -160,14 +173,14 @@ function downloadInstaller() {
     echo -e "\t4. macOS Sonoma\t\t${sonomaOldVersion}"
     echo -e "\t5. macOS Sonoma\t\t${sonomaOldVersionM3}"
     echo
-    echo -e "${GREEN}[CHOICE]: Enter a number (1, 2 or 3)${NC}"
+    #echo -e "${GREEN}Please enter the number of your choice:${NC}"
 
     case $arg2 in
     [1-5])
         answer="$arg2"
         ;;
     *)
-        echo -e "${GREEN}DEFAULTS TO OPTION 1 IN 10 SECONDS...${NC}"
+        echo -e "${NC}(DEFAULTS TO OPTION 1 IN 10 SECONDS...)${NC}"
         read -t 10 answer </dev/tty || answer="1" # Timeout set to 10 seconds, default to option 1
         echo
         ;;
@@ -204,7 +217,7 @@ function downloadInstaller() {
         ;;
 
     *)
-        echo -e "${RED}Invalid selection, exiting now...${NC}"
+        echo -e "${RED}Invalid selection, exiting...${NC}"
         exit
         ;;
     esac
@@ -212,7 +225,7 @@ function downloadInstaller() {
     echo -e "${GREEN}You chose macOS ${macOSName} ${macOSVersion}${NC}"
 
     if [[ -f "InstallAssistant.pkg" ]]; then
-        echo -e "${GREEN}InstallAssistant.pkg found, use that one? (Y/n)${NC}"
+        echo -e "${GREEN}Existing InstallAssistant.pkg found, use that one? (Y/n)${NC}"
         read useIA </dev/tty
 
         case $useIA in
@@ -240,7 +253,7 @@ function downloadInstaller() {
     if [[ $? -eq 0 ]]; then
         echo -e "${GREEN}Download finished.${NC}"
     else
-        echo -e "${RED}[ERROR]: Download failed. Exiting now!${NC}"
+        echo -e "${RED}Download failed. Exiting now!${NC}"
         exit
     fi
 
@@ -280,7 +293,7 @@ function unmountExternalDisks() {
     # will check for external media and will unmount them before installation
     #
 
-    echo -e "${GREEN}Looking for external drives and unmounting ...${NC}"
+    echo -e "${GREEN}Looking for external drives and unmounting...${NC}"
     externalDisk=$(diskutil list | grep external | awk -F " " {'print $1'})
     diskutil umountDisk $externalDisk 2>/dev/null
 
@@ -293,7 +306,7 @@ function main() {
     #
 
     printInfo
-    eraseDisk
+    #eraseDisk
 
     sleep 1
 
@@ -301,7 +314,7 @@ function main() {
     expandAndSet
     unmountExternalDisks
 
-    echo -e "${GREEN} Starting installer...${NC}"
+    echo -e "${GREEN}Starting installer...${NC}"
     "${diskPath}/private/tmp/Install macOS ${macOSName}.app"/Contents/MacOS/InstallAssistant_springboard >/dev/null
 
 }
