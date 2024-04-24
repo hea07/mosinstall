@@ -64,11 +64,11 @@ function printInfo() {
     echo -e "${GREEN}  #    This script let's you download and install a    #${NC}"
     echo -e "${GREEN}  #  macOS Version of your choice from Apple's Server  #${NC}"
     echo -e "${GREEN} #                                                      #${NC}"
-    echo -e "${GREEN}##########################################################${NC}"
-    #echo -e "${GREEN}  #   THIS SCRIPT CAN REMOVE ALL DATA ON YOUR COMPUTER!  #${NC}"
+    #echo -e "${GREEN}##########################################################${NC}"
+    echo -e "${GREEN}  #   THIS SCRIPT CAN REMOVE ALL DATA ON YOUR COMPUTER!  #${NC}"
     #echo -e "${GREEN}  #                                                      #${NC}"
-    #echo -e "${GREEN} #                                                        #${NC}"
-    #echo -e "${GREEN}############################################################${NC}"
+    echo -e "${GREEN} #                                                        #${NC}"
+    echo -e "${GREEN}############################################################${NC}"
     #echo
 
 }
@@ -306,7 +306,7 @@ function main() {
     #
 
     printInfo
-    #eraseDisk
+    eraseDisk
 
     sleep 1
 
