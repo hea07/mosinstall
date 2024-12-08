@@ -18,17 +18,16 @@ arg2="$2"
 # ----------------
 
 #
+# SEQUOIA (15)
+#
+read -r sequoiaVersion sequoiaLink <<<"$(curl -s https://latest-sequoia.hischem.de | tr '|' ' ')"
+
+#
 # SONOMA (14)
 #
 read -r sonomaVersion sonomaLink <<<"$(curl -s https://latest-sonoma.hischem.de | tr '|' ' ')"
 #sonomaVersion="14.3"
 #sonomaLink="https://swcdn.apple.com/content/downloads/62/31/042-78233-A_YIMC5ZQM8T/yj7iay56cmvc2cux0qm55lfweb2u90euyo/InstallAssistant.pkg"
-
-sonomaOldVersion="14.4.1"
-sonomaOldVersionLink="https://swcdn.apple.com/content/downloads/04/13/052-77516-A_4P7VY083DT/83qy3989rsnylxagdmim3owwjdtc33zfe4/InstallAssistant.pkg"
-
-sonomaOldVersionM3="14.1.2 (M3 only)"
-sonomaOldVersionM3Link="https://swcdn.apple.com/content/downloads/54/47/052-09460-A_HHL1JV64MF/b7arop3bkdru7i7anbw4qdlij5tqoz20hp/InstallAssistant.pkg"
 
 #
 # VENTURA (13)
@@ -166,12 +165,10 @@ function downloadInstaller() {
     echo
     echo -e "${NC}Choose your macOS Version:${NC}"
     echo
-    echo -e "\t1. macOS Sonoma\t\t${sonomaVersion}"
-    echo -e "\t2. macOS Ventura\t${venturaVersion}"
-    echo -e "\t3. macOS Monterey\t${montereyVersion}"
-    echo
-    echo -e "\t4. macOS Sonoma\t\t${sonomaOldVersion}"
-    echo -e "\t5. macOS Sonoma\t\t${sonomaOldVersionM3}"
+    echo -e "\t1. macOS Sequoia\t\t${sequoiaVersion}"
+    echo -e "\t2. macOS Sonoma\t\t${sonomaVersion}"
+    echo -e "\t3. macOS Ventura\t${venturaVersion}"
+    echo -e "\t4. macOS Monterey\t${montereyVersion}"
     echo
     #echo -e "${GREEN}Please enter the number of your choice:${NC}"
 
@@ -187,33 +184,26 @@ function downloadInstaller() {
     esac
 
     case $answer in
-    "1" | "14")
+    "1" | "15")
+        macOSName="Sequoia"
+        macOSVersion=${sequoiaVersion}
+        macOSUrl=${sequoiaLink}
+        ;;
+    "2" | "14")
         macOSName="Sonoma"
         macOSVersion=${sonomaVersion}
         macOSUrl=${sonomaLink}
         ;;
-    "2" | "13")
+    "3" | "13")
         macOSName="Ventura"
         macOSVersion=${venturaVersion}
         macOSUrl=${venturaLink}
         ;;
 
-    "3" | "12")
+    "4" | "12")
         macOSName="Monterey"
         macOSVersion=${montereyVersion}
         macOSUrl=${montereyLink}
-        ;;
-
-    "4")
-        macOSName="Sonoma"
-        macOSVersion=${sonomaOldVersion}
-        macOSUrl=${sonomaOldVersionLink}
-        ;;
-
-    "5")
-        macOSName="Sonoma"
-        macOSVersion=${sonomaOldVersionM3}
-        macOSUrl=${sonomaOldVersionM3Link}
         ;;
 
     *)
