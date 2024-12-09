@@ -165,7 +165,7 @@ function downloadInstaller() {
     echo
     echo -e "${NC}Choose your macOS Version:${NC}"
     echo
-    echo -e "\t1. macOS Sequoia\t\t${sequoiaVersion}"
+    echo -e "\t1. macOS Sequoia\t${sequoiaVersion}"
     echo -e "\t2. macOS Sonoma\t\t${sonomaVersion}"
     echo -e "\t3. macOS Ventura\t${venturaVersion}"
     echo -e "\t4. macOS Monterey\t${montereyVersion}"
