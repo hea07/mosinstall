@@ -7,14 +7,14 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Define variables
-USB_DRIVE="/Users/username/Downloads/USBdrive"
+USB_DRIVE="/Users/user.name/Downloads/USBdrive"
 SOURCE_FOLDER="$USB_DRIVE/Offlineinstaller" 
 DEST_FOLDER="/tmp/Offlineinstaller"
 LOG_FILE="/var/log/offlineinstaller.log"
 
 # Function to display progress using rsync
 copy_with_progress() {
-    # needs to look better
+    # need to look better
     rsync -ahz --progress "$SOURCE_FOLDER/" "$DEST_FOLDER/"
 }
 
@@ -36,7 +36,7 @@ if [ ! -d "$USB_DRIVE" ]; then
 fi
 
 # Start logging
-echo "Starting installation process at $(date)" > "$LOG_FILE"
+echoDate "Starting installation process at $(date)" > "$LOG_FILE"
 
 # Step 1: Copy the folder with a real progress indicator
 echoDate "Copying folder from USB to local machine..." | tee -a "$LOG_FILE"
@@ -53,9 +53,9 @@ echo -e "${GREEN}############################${NC}" | tee -a "$LOG_FILE"
 echoDate "Ejecting USB drive..." | tee -a "$LOG_FILE"
 diskutil eject "$USB_DRIVE" | tee -a "$LOG_FILE"
 if [ $? -ne 0 ]; then
-    echo -e "${RED}###################################${NC}" | tee -a "$LOG_FILE"
+    echo -e "${RED}##############################################################${NC}" | tee -a "$LOG_FILE"
     echo -e "${RED}Failed to eject USB drive. You may need to remove it manually.${NC}" | tee -a "$LOG_FILE"
-    echo -e "${RED}###################################${NC}" | tee -a "$LOG_FILE"
+    echo -e "${RED}##############################################################${NC}" | tee -a "$LOG_FILE"
 else
 
     # TODO prints sucess everytime, even when theres no disk
@@ -64,7 +64,7 @@ else
     echo -e "${GREEN}###################################${NC}" | tee -a "$LOG_FILE"
 fi
 
-# check if there are zip files in the folder and unzip
+# check if there a zip files in the folder and unzip
 for zip_file in "$DEST_FOLDER"/*.zip; do
     if [[ -f "$zip_file" ]]; then # Check if the file exists
         zip_dir=$(dirname "$zip_file")
@@ -95,12 +95,17 @@ else
             echoDate "$PKG installed successfully." | tee -a "$LOG_FILE"
         fi
     done
+    echoDate "------------------------"
+    echoDate "Finished all .pkg files!"
+    echoDate "------------------------"
 fi
 
 # Step 4: Execute scripts in the "Scripts" subfolder
 SCRIPTS_FOLDER="$DEST_FOLDER/Scripts"
 if [ -d "$SCRIPTS_FOLDER" ]; then
+    echoDate "-----------------------------------------------------"
     echoDate "Executing scripts in $SCRIPTS_FOLDER..." | tee -a "$LOG_FILE"
+    echoDate "-----------------------------------------------------"
     for SCRIPT in "$SCRIPTS_FOLDER"/*.sh; do
         if [ -f "$SCRIPT" ]; then
             echoDate "Running $SCRIPT..." | tee -a "$LOG_FILE"
@@ -112,6 +117,9 @@ if [ -d "$SCRIPTS_FOLDER" ]; then
             fi
         fi
     done
+    echoDate "---------------------"
+    echoDate "Finished all scripts!"
+    echoDate "---------------------"
 else
     echoDate "Scripts folder not found. Skipping script execution." | tee -a "$LOG_FILE"
 fi
