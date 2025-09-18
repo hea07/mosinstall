@@ -18,6 +18,11 @@ arg2="$2"
 # ----------------
 
 #
+# TAHOE (26)
+#
+read -r tahoeVersion tahoeLink <<<"$(curl -s https://latest-tahoe.hischem.de | tr '|' ' ')"
+
+#
 # SEQUOIA (15)
 #
 read -r sequoiaVersion sequoiaLink <<<"$(curl -s https://latest-sequoia.hischem.de | tr '|' ' ')"
@@ -165,6 +170,7 @@ function downloadInstaller() {
     echo
     echo -e "${NC}Choose your macOS Version:${NC}"
     echo
+    echo -e "\t1. macOS Tahoe\t${tahoeVersion}"
     echo -e "\t1. macOS Sequoia\t${sequoiaVersion}"
     echo -e "\t2. macOS Sonoma\t\t${sonomaVersion}"
     echo -e "\t3. macOS Ventura\t${venturaVersion}"
@@ -184,23 +190,28 @@ function downloadInstaller() {
     esac
 
     case $answer in
-    "1" | "15")
+    "1" | "26")
+        macOSName="Tahoe"
+        macOSVersion=${tahoeVersion}
+        macOSUrl=${tahoeLink}
+        ;;
+    "2" | "15")
         macOSName="Sequoia"
         macOSVersion=${sequoiaVersion}
         macOSUrl=${sequoiaLink}
         ;;
-    "2" | "14")
+    "3" | "14")
         macOSName="Sonoma"
         macOSVersion=${sonomaVersion}
         macOSUrl=${sonomaLink}
         ;;
-    "3" | "13")
+    "4" | "13")
         macOSName="Ventura"
         macOSVersion=${venturaVersion}
         macOSUrl=${venturaLink}
         ;;
 
-    "4" | "12")
+    "5" | "12")
         macOSName="Monterey"
         macOSVersion=${montereyVersion}
         macOSUrl=${montereyLink}
