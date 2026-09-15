@@ -20,7 +20,7 @@ arg2="$2"
 #
 # GOLDEN GATE (27)
 #
-read -r tahoeVersion goldengateLink <<<"$(curl -s https://latest-goldengate.hischem.de | tr '|' ' ')"
+read -r goldengateVersion goldengateLink <<<"$(curl -s https://latest-goldengate.hischem.de | tr '|' ' ')"
 
 #
 # TAHOE (26)
@@ -185,7 +185,7 @@ function downloadInstaller() {
     #echo -e "${GREEN}Please enter the number of your choice:${NC}"
 
     case $arg2 in
-    [1-5])
+    [1-6])
         answer="$arg2"
         ;;
     *)
