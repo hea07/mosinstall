@@ -1,6 +1,6 @@
 #!/bin/bash
 # ORIGINAL FILE FROM https://github.com/macBerlin/macOS_erase/blob/main/macOS_erase_Monterey
-# THIS WAS CHANGED TO WORK WITH ALL VRESIONS: MONTEREY, VENTURA
+# THIS WAS CHANGED TO WORK WITH ALL CURRENTLY BY APPLE SUPPORTED VERSIONS
 # NO WARRANTY OR HELP FROM ME
 
 # Check if arguments were provided
@@ -16,6 +16,11 @@ arg2="$2"
 # ----------------
 # SETUP
 # ----------------
+
+#
+# GOLDEN GATE (27)
+#
+read -r tahoeVersion goldengateLink <<<"$(curl -s https://latest-goldengate.hischem.de | tr '|' ' ')"
 
 #
 # TAHOE (26)
@@ -170,11 +175,12 @@ function downloadInstaller() {
     echo
     echo -e "${NC}Choose your macOS Version:${NC}"
     echo
-    echo -e "\t1. macOS Tahoe\t${tahoeVersion}"
-    echo -e "\t1. macOS Sequoia\t${sequoiaVersion}"
-    echo -e "\t2. macOS Sonoma\t\t${sonomaVersion}"
-    echo -e "\t3. macOS Ventura\t${venturaVersion}"
-    echo -e "\t4. macOS Monterey\t${montereyVersion}"
+    echo -e "\t1. macOS Golden Gate\t${goldengateVersion}"
+    echo -e "\t2. macOS Tahoe\t${tahoeVersion}"
+    echo -e "\t3. macOS Sequoia\t${sequoiaVersion}"
+    echo -e "\t4. macOS Sonoma\t\t${sonomaVersion}"
+    echo -e "\t5. macOS Ventura\t${venturaVersion}"
+    echo -e "\t6. macOS Monterey\t${montereyVersion}"
     echo
     #echo -e "${GREEN}Please enter the number of your choice:${NC}"
 
@@ -190,28 +196,33 @@ function downloadInstaller() {
     esac
 
     case $answer in
-    "1" | "26")
+    "1" | "27")
+        macOSName="Golden Gate"
+        macOSVersion=${goldengateVersion}
+        macOSUrl=${goldengateLink}
+        ;;
+    "2" | "26")
         macOSName="Tahoe"
         macOSVersion=${tahoeVersion}
         macOSUrl=${tahoeLink}
         ;;
-    "2" | "15")
+    "3" | "15")
         macOSName="Sequoia"
         macOSVersion=${sequoiaVersion}
         macOSUrl=${sequoiaLink}
         ;;
-    "3" | "14")
+    "4" | "14")
         macOSName="Sonoma"
         macOSVersion=${sonomaVersion}
         macOSUrl=${sonomaLink}
         ;;
-    "4" | "13")
+    "5" | "13")
         macOSName="Ventura"
         macOSVersion=${venturaVersion}
         macOSUrl=${venturaLink}
         ;;
 
-    "5" | "12")
+    "6" | "12")
         macOSName="Monterey"
         macOSVersion=${montereyVersion}
         macOSUrl=${montereyLink}
